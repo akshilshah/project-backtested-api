@@ -5,7 +5,7 @@ import {
   loginSchema,
   updateProfileSchema,
   updateSettingsSchema
-} from './validation'
+} from '../../utils/validation'
 
 /**
  * User Signup

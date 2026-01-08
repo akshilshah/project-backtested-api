@@ -16,9 +16,11 @@ import {
   ok,
   unauthorized
 } from './utils/express-helper'
-import authRouter from './services/auth/router'
-import mastersRouter from './services/masters/router'
-import tradeRouter from './services/trade/router'
+import authRouter from './services/auth/auth.router'
+import coinsRouter from './services/masters/coins/coins.router'
+import strategiesRouter from './services/masters/strategies/strategies.router'
+import tradeRouter from './services/trade/trade.router'
+import { protect } from './services/auth/auth.controller'
 require('dotenv').config()
 
 // create express server
@@ -71,8 +73,9 @@ router.all('*', function(req, res, next) {
 
 // API Routes
 app.use('/api/auth', authRouter)
-app.use('/api/masters', mastersRouter)
-app.use('/api/trades', tradeRouter)
+app.use('/api/masters/coins', protect, coinsRouter)
+app.use('/api/masters/strategies', protect, strategiesRouter)
+app.use('/api/trades', protect, tradeRouter)
 
 // Source:  https://docs.sentry.io/platforms/node/guides/express/
 app.use(Sentry.Handlers.errorHandler())

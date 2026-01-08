@@ -5,7 +5,7 @@ import {
   getCoin,
   updateCoin,
   deleteCoin
-} from './controller'
+} from './coins.controller'
 
 const router = Router()
 

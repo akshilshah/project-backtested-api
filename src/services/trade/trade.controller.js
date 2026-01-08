@@ -6,7 +6,7 @@ import {
   exitTradeSchema,
   listTradesSchema,
   analyticsSchema
-} from './validation'
+} from '../../utils/validation'
 
 /**
  * Create a new trade

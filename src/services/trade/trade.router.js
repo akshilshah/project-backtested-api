@@ -1,12 +1,5 @@
 import { Router } from 'express'
 import {
-  conflict,
-  created,
-  error,
-  ok,
-  unauthorized
-} from '../../utils/express-helper'
-import {
   createTrade,
   listTrades,
   getTrade,
@@ -14,10 +7,9 @@ import {
   exitTrade,
   deleteTrade,
   getAnalytics
-} from './controller'
+} from './trade.controller'
 
 const router = Router()
-router.use(created, error, unauthorized, ok, conflict)
 
 // Analytics endpoint (must be before :id routes to avoid conflict)
 router.get('/analytics', getAnalytics)

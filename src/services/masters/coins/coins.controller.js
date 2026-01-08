@@ -1,6 +1,6 @@
 import { db } from '../../../config/db'
 import { constants } from '../../../utils/constants'
-import { createCoinSchema, updateCoinSchema, idParamSchema } from './validation'
+import { createCoinSchema, updateCoinSchema, idParamSchema } from '../../../utils/validation'
 
 export const createCoin = async (req, res) => {
   try {

@@ -6,7 +6,7 @@ import {
   updateProfile,
   updateSettings,
   protect
-} from './controller'
+} from './auth.controller'
 
 const router = Router()
 

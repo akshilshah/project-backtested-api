@@ -5,7 +5,7 @@ import {
   getStrategy,
   updateStrategy,
   deleteStrategy
-} from './controller'
+} from './strategies.controller'
 
 const router = Router()
 

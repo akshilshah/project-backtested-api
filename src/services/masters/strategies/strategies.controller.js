@@ -4,7 +4,7 @@ import {
   createStrategySchema,
   updateStrategySchema,
   idParamSchema
-} from './validation'
+} from '../../../utils/validation'
 
 export const createStrategy = async (req, res) => {
   try {
