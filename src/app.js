@@ -12,9 +12,13 @@ import {
   created,
   error,
   forbidden,
+  notFound,
   ok,
   unauthorized
 } from './utils/express-helper'
+import authRouter from './services/auth/router'
+import mastersRouter from './services/masters/router'
+import tradeRouter from './services/trade/router'
 require('dotenv').config()
 
 // create express server
@@ -54,8 +58,8 @@ app.use(compress)
 app.use(helmet())
 
 const router = Router()
-router.use(created, error, unauthorized, ok, conflict, forbidden)
-app.use(created, error, unauthorized, ok, conflict, forbidden)
+router.use(created, error, unauthorized, ok, conflict, forbidden, notFound)
+app.use(created, error, unauthorized, ok, conflict, forbidden, notFound)
 
 router.all('*', function(req, res, next) {
   res.header('Access-Control-Allow-Origin', '*')
@@ -64,6 +68,11 @@ router.all('*', function(req, res, next) {
   res.header('Access-Control-Max-Age', '1728000')
   next()
 })
+
+// API Routes
+app.use('/api/auth', authRouter)
+app.use('/api/masters', mastersRouter)
+app.use('/api/trades', tradeRouter)
 
 // Source:  https://docs.sentry.io/platforms/node/guides/express/
 app.use(Sentry.Handlers.errorHandler())

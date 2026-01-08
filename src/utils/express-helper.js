@@ -83,3 +83,17 @@ export const forbidden = function(req, res, next) {
   }
   next()
 }
+
+// send 404 error - not found
+export const notFound = function(req, res, next) {
+  res.notFound = function(message) {
+    let data =
+      typeof message === 'object'
+        ? message
+        : {
+            message: message || 'Not found'
+          }
+    return res.status(404).json({ success: false, data })
+  }
+  next()
+}

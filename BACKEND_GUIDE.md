@@ -100,84 +100,84 @@ model Resource {
 **Module**: `src/services/auth/`
 
 **Task 2.1**: User Signup
-- [ ] Create validation schema (email, password, firstName, lastName)
-- [ ] Hash password using bcrypt
-- [ ] Create user with default organization
-- [ ] Return JWT token
-- [ ] API: `POST /api/auth/signup`
+- [x] Create validation schema (email, password, firstName, lastName)
+- [x] Hash password using bcrypt
+- [x] Create user with default organization
+- [x] Return JWT token
+- [x] API: `POST /api/auth/signup`
 
 **Task 2.2**: User Login
-- [ ] Create validation schema (email, password)
-- [ ] Verify credentials
-- [ ] Generate JWT token
-- [ ] API: `POST /api/auth/login`
+- [x] Create validation schema (email, password)
+- [x] Verify credentials
+- [x] Generate JWT token
+- [x] API: `POST /api/auth/login`
 
 **Task 2.3**: User Profile Management
-- [ ] Get profile: `GET /api/auth/profile`
-- [ ] Update profile: `PUT /api/auth/profile`
-- [ ] Update settings (currency, preferences): `PUT /api/auth/settings`
+- [x] Get profile: `GET /api/auth/profile`
+- [x] Update profile: `PUT /api/auth/profile`
+- [x] Update settings (currency, preferences): `PUT /api/auth/settings`
 
 ### Phase 3: Master Data Management
 **Module**: `src/services/masters/`
 
 **Task 3.1**: Coin Management (CRUD)
-- [ ] Create coin: `POST /api/masters/coins`
-- [ ] List coins: `GET /api/masters/coins`
-- [ ] Get coin: `GET /api/masters/coins/:id`
-- [ ] Update coin: `PUT /api/masters/coins/:id`
-- [ ] Delete coin: `DELETE /api/masters/coins/:id`
+- [x] Create coin: `POST /api/masters/coins`
+- [x] List coins: `GET /api/masters/coins`
+- [x] Get coin: `GET /api/masters/coins/:id`
+- [x] Update coin: `PUT /api/masters/coins/:id`
+- [x] Delete coin: `DELETE /api/masters/coins/:id`
 
 **Task 3.2**: Strategy Management (CRUD)
-- [ ] Create strategy: `POST /api/masters/strategies`
-- [ ] List strategies: `GET /api/masters/strategies`
-- [ ] Get strategy: `GET /api/masters/strategies/:id`
-- [ ] Update strategy: `PUT /api/masters/strategies/:id`
-- [ ] Delete strategy: `DELETE /api/masters/strategies/:id`
+- [x] Create strategy: `POST /api/masters/strategies`
+- [x] List strategies: `GET /api/masters/strategies`
+- [x] Get strategy: `GET /api/masters/strategies/:id`
+- [x] Update strategy: `PUT /api/masters/strategies/:id`
+- [x] Delete strategy: `DELETE /api/masters/strategies/:id`
 
 ### Phase 4: Trade Management Module
 **Module**: `src/services/trade/`
 
 **Task 4.1**: Create Trade
-- [ ] Validation: coinId, strategyId, tradeDate, tradeTime, avgEntry, stopLoss, quantity
-- [ ] Store with status = 'OPEN'
-- [ ] API: `POST /api/trades`
+- [x] Validation: coinId, strategyId, tradeDate, tradeTime, avgEntry, stopLoss, quantity
+- [x] Store with status = 'OPEN'
+- [x] API: `POST /api/trades`
 
 **Task 4.2**: List Trades
-- [ ] Filter by status (OPEN/CLOSED), date range, coin, strategy
-- [ ] Pagination support
-- [ ] Include coin and strategy details
-- [ ] API: `GET /api/trades`
+- [x] Filter by status (OPEN/CLOSED), date range, coin, strategy
+- [x] Pagination support
+- [x] Include coin and strategy details
+- [x] API: `GET /api/trades`
 
 **Task 4.3**: Get Trade Details
-- [ ] Fetch single trade with all relations
-- [ ] API: `GET /api/trades/:id`
+- [x] Fetch single trade with all relations
+- [x] API: `GET /api/trades/:id`
 
 **Task 4.4**: Update Trade
-- [ ] Allow updating entry details for OPEN trades
-- [ ] Validation for editable fields
-- [ ] API: `PUT /api/trades/:id`
+- [x] Allow updating entry details for OPEN trades
+- [x] Validation for editable fields
+- [x] API: `PUT /api/trades/:id`
 
 **Task 4.5**: Exit Trade
-- [ ] Validation: avgExit, exitDate, exitTime
-- [ ] Calculate P&L: (avgExit - avgEntry) * quantity
-- [ ] Calculate P&L %: ((avgExit - avgEntry) / avgEntry) * 100
-- [ ] Calculate duration: exitDate - tradeDate
-- [ ] Update status to 'CLOSED'
-- [ ] API: `POST /api/trades/:id/exit`
+- [x] Validation: avgExit, exitDate, exitTime
+- [x] Calculate P&L: (avgExit - avgEntry) * quantity
+- [x] Calculate P&L %: ((avgExit - avgEntry) / avgEntry) * 100
+- [x] Calculate duration: exitDate - tradeDate
+- [x] Update status to 'CLOSED'
+- [x] API: `POST /api/trades/:id/exit`
 
 **Task 4.6**: Trade Analytics
-- [ ] Total trades count
-- [ ] Win rate (profitable trades / total closed trades)
-- [ ] Total P&L
-- [ ] Average P&L per trade
-- [ ] Best/Worst trades
-- [ ] P&L by coin, strategy, time period
-- [ ] API: `GET /api/trades/analytics`
+- [x] Total trades count
+- [x] Win rate (profitable trades / total closed trades)
+- [x] Total P&L
+- [x] Average P&L per trade
+- [x] Best/Worst trades
+- [x] P&L by coin, strategy, time period
+- [x] API: `GET /api/trades/analytics`
 
 ### Phase 5: API Documentation
 **Task 5.1**: Create API Documentation
-- [ ] Create `docs/api.md` with all endpoints
-- [ ] For each endpoint document:
+- [x] Create `docs/api.md` with all endpoints
+- [x] For each endpoint document:
   - HTTP Method and URL
   - Authentication required (Yes/No)
   - Request headers
@@ -210,18 +210,18 @@ model Resource {
 
 ### Phase 6: Error Handling & Middleware
 **Task 6.1**: Global Error Handler
-- [ ] Create error handling middleware
-- [ ] Standardize error responses
-- [ ] Log errors appropriately
+- [x] Create error handling middleware
+- [x] Standardize error responses
+- [x] Log errors appropriately
 
 **Task 6.2**: Authentication Middleware
-- [ ] JWT verification middleware
-- [ ] Attach user context to req.context
-- [ ] Handle token expiration
+- [x] JWT verification middleware
+- [x] Attach user context to req.context
+- [x] Handle token expiration
 
 **Task 6.3**: Authorization Middleware
-- [ ] Organization-level data isolation
-- [ ] Role-based access control (if needed)
+- [x] Organization-level data isolation
+- [x] Role-based access control (if needed)
 
 ## Code Quality Standards
 1. **Always use try-catch** blocks in controllers
