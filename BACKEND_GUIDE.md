@@ -79,18 +79,18 @@ model Resource {
 
 ### Phase 1: Database Schema Design
 **Task 1.1**: Create Prisma Schema
-- [ ] User model (id, email, password, firstName, lastName, profileSettings)
-- [ ] Organization model
-- [ ] UserSettings model (userId, currency, timezone, preferences)
-- [ ] Coin model (id, name, symbol, description) - Master table
-- [ ] Strategy model (id, name, description, rules) - Master table
-- [ ] Trade model with fields:
+- [x] User model (id, email, password, firstName, lastName, profileSettings)
+- [x] Organization model
+- [x] UserSettings model (userId, currency, timezone, preferences)
+- [x] Coin model (id, name, symbol, description) - Master table
+- [x] Strategy model (id, name, description, rules) - Master table
+- [x] Trade model with fields:
   - Basic: id, coinId, strategyId, tradeDate, tradeTime
   - Entry: avgEntry, stopLoss, quantity
   - Exit: avgExit, exitDate, exitTime, status (OPEN/CLOSED)
   - Calculated: profitLoss, profitLossPercentage, duration
   - Audit: organizationId, createdBy, updatedBy, createdAt, updatedAt
-- [ ] Run `npx prisma migrate dev` to apply schema
+- [x] Run `npx prisma migrate dev` to apply schema
 
 **Task 1.2**: Create seed data
 - [ ] Add common coins (BTC, ETH, USDT, etc.)

@@ -3,20 +3,206 @@ datasource db {
 }
 
 generator client {
-  provider = "prisma-client"
+  provider = "prisma-client-js"
   output   = "./generated"
 }
 
-model User {
-  id       Int     @id @default(autoincrement())
-  name     String
-  username String  @unique
-  email    String?
-  password String
+// ==========================================
+// Organization Model
+// ==========================================
+model Organization {
+  id          Int      @id @default(autoincrement())
+  name        String
+  description String?
 
-  //
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
+  // Relations
+  users        User[]
+  userSettings UserSettings[]
+  coins        Coin[]
+  strategies   Strategy[]
+  trades       Trade[]
+
+  @@map("organizations")
+}
+
+// ==========================================
+// User Model
+// ==========================================
+model User {
+  id              Int     @id @default(autoincrement())
+  email           String  @unique
+  password        String
+  firstName       String  @map("first_name")
+  lastName        String  @map("last_name")
+  profileSettings Json?   @map("profile_settings")
+
+  // Organization relation
+  organizationId Int          @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  // Relations - User Settings
+  userSettings UserSettings?
+
+  // Relations - Created/Updated by (audit trail)
+  createdCoins   Coin[]     @relation("CoinCreatedBy")
+  updatedCoins   Coin[]     @relation("CoinUpdatedBy")
+  createdStrategies Strategy[] @relation("StrategyCreatedBy")
+  updatedStrategies Strategy[] @relation("StrategyUpdatedBy")
+  createdTrades  Trade[]    @relation("TradeCreatedBy")
+  updatedTrades  Trade[]    @relation("TradeUpdatedBy")
+
   @@map("users")
+}
+
+// ==========================================
+// User Settings Model
+// ==========================================
+model UserSettings {
+  id          Int    @id @default(autoincrement())
+  currency    String @default("USD")
+  timezone    String @default("UTC")
+  preferences Json?
+
+  // User relation (one-to-one)
+  userId Int  @unique @map("user_id")
+  user   User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  // Organization relation
+  organizationId Int          @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Timestamps
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("user_settings")
+}
+
+// ==========================================
+// Coin Model (Master Table)
+// ==========================================
+model Coin {
+  id          Int     @id @default(autoincrement())
+  name        String
+  symbol      String
+  description String?
+
+  // Organization relation
+  organizationId Int          @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Audit fields
+  createdAt   DateTime @default(now()) @map("created_at")
+  createdById Int      @map("created_by_id")
+  createdBy   User     @relation("CoinCreatedBy", fields: [createdById], references: [id])
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedById Int?     @map("updated_by_id")
+  updatedBy   User?    @relation("CoinUpdatedBy", fields: [updatedById], references: [id])
+
+  // Relations
+  trades Trade[]
+
+  @@unique([symbol, organizationId])
+  @@map("coins")
+}
+
+// ==========================================
+// Strategy Model (Master Table)
+// ==========================================
+model Strategy {
+  id          Int     @id @default(autoincrement())
+  name        String
+  description String?
+  rules       Json?
+
+  // Organization relation
+  organizationId Int          @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Audit fields
+  createdAt   DateTime @default(now()) @map("created_at")
+  createdById Int      @map("created_by_id")
+  createdBy   User     @relation("StrategyCreatedBy", fields: [createdById], references: [id])
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedById Int?     @map("updated_by_id")
+  updatedBy   User?    @relation("StrategyUpdatedBy", fields: [updatedById], references: [id])
+
+  // Relations
+  trades Trade[]
+
+  @@unique([name, organizationId])
+  @@map("strategies")
+}
+
+// ==========================================
+// Trade Status Enum
+// ==========================================
+enum TradeStatus {
+  OPEN
+  CLOSED
+}
+
+// ==========================================
+// Trade Model
+// ==========================================
+model Trade {
+  id Int @id @default(autoincrement())
+
+  // Trade basic info
+  tradeDate DateTime @map("trade_date") @db.Date
+  tradeTime DateTime @map("trade_time") @db.Time()
+
+  // Entry details
+  avgEntry Float  @map("avg_entry")
+  stopLoss Float  @map("stop_loss")
+  quantity Float
+
+  // Exit details (nullable until trade is closed)
+  avgExit  Float?    @map("avg_exit")
+  exitDate DateTime? @map("exit_date") @db.Date
+  exitTime DateTime? @map("exit_time") @db.Time()
+
+  // Status
+  status TradeStatus @default(OPEN)
+
+  // Calculated fields (populated when trade is closed)
+  profitLoss           Float? @map("profit_loss")
+  profitLossPercentage Float? @map("profit_loss_percentage")
+  duration             Int?   // Duration in days
+
+  // Notes/Comments
+  notes String?
+
+  // Coin relation
+  coinId Int  @map("coin_id")
+  coin   Coin @relation(fields: [coinId], references: [id])
+
+  // Strategy relation
+  strategyId Int      @map("strategy_id")
+  strategy   Strategy @relation(fields: [strategyId], references: [id])
+
+  // Organization relation
+  organizationId Int          @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Audit fields
+  createdAt   DateTime @default(now()) @map("created_at")
+  createdById Int      @map("created_by_id")
+  createdBy   User     @relation("TradeCreatedBy", fields: [createdById], references: [id])
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedById Int?     @map("updated_by_id")
+  updatedBy   User?    @relation("TradeUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([organizationId, status])
+  @@index([organizationId, tradeDate])
+  @@index([coinId])
+  @@index([strategyId])
+  @@map("trades")
 }
