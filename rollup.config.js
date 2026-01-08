@@ -1,6 +1,7 @@
 import run from '@rollup/plugin-run'
 import babel from 'rollup-plugin-babel'
 import localResolve from 'rollup-plugin-local-resolve'
+import typescript from '@rollup/plugin-typescript'
 
 const dev =
   process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'build'
@@ -12,7 +13,17 @@ export default {
     format: 'cjs'
   },
   plugins: [
-    babel(),
+    typescript({
+      include: ['prisma/generated/**/*.ts'],
+      compilerOptions: {
+        module: 'ESNext',
+        moduleResolution: 'node',
+        declaration: false
+      }
+    }),
+    babel({
+      exclude: ['prisma/generated/**']
+    }),
     localResolve(),
     dev &&
       run({
@@ -31,6 +42,7 @@ export default {
     'body-parser',
     'morgan',
     '@prisma/client',
+    '@prisma/client/runtime/client',
     '@prisma/adapter-pg',
     'moment',
     'moment-timezone',
