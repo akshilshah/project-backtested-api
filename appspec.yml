@@ -1,0 +1,52 @@
+# This is an appspec.yml template file for use with AWS CodeDeploy.
+# The lines in this template starting with the hashtag symbol are
+#   instructional comments and can be safely left in the file or
+#   ignored.
+# For help completing this file, see the "AppSpec File Reference" in the
+#   "AWS CodeDeploy User Guide" at
+#   http://docs.aws.amazon.com/codedeploy/latest/userguide/app-spec-ref.html
+version: 0.0
+# Specify "os: linux" if this revision targets Linux.
+# Otherwise, specify "os: windows".
+# (You cannot specify both "os: linux" and "os: windows".)
+os: linux
+# os: windows
+files:
+  - source: /
+    destination: /home/ubuntu/crypto
+# For deployments to Amazon Linux and Ubuntu Server instances,
+#   you can specify a "permissions"
+#   section here that describes special permissions to apply to the files
+#   in the "files" section as they are being copied over to the instance.
+#   For more information, see the documentation.
+# If you are deploying to Windows Server instances, then remove the
+#   "permissions" section altogether. A blank or incomplete "permissions"
+#   section may cause associated deployments to fail.
+permissions:
+  - object: /home/ubuntu/crypto
+    owner: ubuntu
+    group: ubuntu
+# If you are not running any commands on the instance, then remove
+#   the "hooks" section altogether. A blank or incomplete "hooks" section
+#   may cause associated deployments to fail.
+hooks:
+  BeforeInstall:
+    - location: scripts/before.sh
+      timeout: 300
+      runas: ubuntu
+  AfterInstall:
+    - location: scripts/after.sh
+      timeout: 300
+      runas: ubuntu
+  ApplicationStart:
+    - location: scripts/start.sh
+      timeout: 120
+      runas: ubuntu
+  ApplicationStop:
+    - location: scripts/stop.sh
+      timeout: 30
+      runas: ubuntu
+  ValidateService:
+    - location: scripts/validate.sh
+      timeout: 300
+      runas: ubuntu

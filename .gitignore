@@ -1,0 +1,16 @@
+node_modules/
+.env
+yarn-error.log
+run.js
+dist/
+prisma/json-schema/json-schema.json
+postman.txt
+junk.txt
+.DS_STORE
+.claude/
+evaluation-exports/
+src/services/abv/utils/data/images
+src/services/abl/utils/data/abl/images
+downloads
+src/services/evaluation/data
+data
