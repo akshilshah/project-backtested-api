@@ -49,7 +49,6 @@ export default {
     'jsonwebtoken',
     'lodash',
     'axios',
-    'redis',
     '@langchain/core/prompts',
     '@langchain/core/runnables',
     '@langchain/openai',

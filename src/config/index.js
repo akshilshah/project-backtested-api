@@ -11,10 +11,8 @@ const config = {
   DATABASE_URL: process.env.DATABASE_URL,
   PORT: process.env.PORT,
   NODE_ENV: process.env.NODE_ENV,
-  CACHE: process.env.CACHE,
   DEBUG_LLM: process.env.DEBUG_LLM,
-  WEB_BASE_URL: process.env.WEB_BASE_URL,
-  REDIS_URL: process.env.REDIS_URL
+  WEB_BASE_URL: process.env.WEB_BASE_URL
 }
 
 export default config

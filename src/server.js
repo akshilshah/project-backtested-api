@@ -3,7 +3,6 @@ import * as Tracing from '@sentry/tracing'
 import { app } from './app'
 import config from './config'
 import { db } from './config/db'
-import { redis } from './config/redis'
 
 require('dotenv').config()
 
@@ -22,16 +21,11 @@ const start = async () => {
     })
     await db.$connect()
 
-    if (config.CACHE === 'true') {
-      console.log('Redis Server already connected via redis.js module')
-    }
-
     app.listen(config.PORT, () => {
       console.log(`REST API on http://localhost:${config.PORT}/api`)
     })
   } catch (e) {
     await db.$disconnect()
-    // await redis.disconnect()
     console.error(e)
   }
 }
