@@ -31,6 +31,7 @@ export default {
       })
   ],
   external: [
+    /prisma\/generated/,
     '@sentry/node',
     '@sentry/profiling-node',
     '@sentry/tracing',

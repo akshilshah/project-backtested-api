@@ -1,8 +1,13 @@
 import { db } from '../../config/db'
-import { hashText, compareHash, generateJWTToken, verifyJWTToken } from '../../utils/utils'
 import {
-  signupSchema,
+  compareHash,
+  generateJWTToken,
+  hashText,
+  verifyJWTToken
+} from '../../utils/utils'
+import {
   loginSchema,
+  signupSchema,
   updateProfileSchema,
   updateSettingsSchema
 } from '../../utils/validation'
@@ -14,9 +19,9 @@ import {
 export const signup = async (req, res) => {
   try {
     const body = await signupSchema.validateAsync(req.body)
-
+    console.log(body)
     // Check if user already exists
-    const existingUser = await db.user.findUnique({
+    const existingUser = await db.user.findFirst({
       where: { email: body.email }
     })
 
@@ -28,7 +33,7 @@ export const signup = async (req, res) => {
     const hashedPassword = await hashText(body.password)
 
     // Create organization and user in a transaction
-    const result = await db.$transaction(async (tx) => {
+    const result = await db.$transaction(async tx => {
       // Create default organization for user
       const organization = await tx.organization.create({
         data: {
@@ -80,7 +85,11 @@ export const signup = async (req, res) => {
       token
     })
   } catch (error) {
-    console.log(error)
+    console.log('Signup error:', error)
+    console.log(
+      'Error cause:',
+      JSON.stringify(error.meta?.driverAdapterError?.cause, null, 2)
+    )
     res.error(error)
   }
 }
