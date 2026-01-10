@@ -168,6 +168,27 @@ export const listTrades = async (req, res) => {
 }
 
 /**
+ * Calculate derived trade fields
+ */
+const calculateDerivedFields = trade => {
+  const { avgEntry, stopLoss, avgExit, quantity } = trade
+
+  // Direction: Short if entry < stopLoss, else Long
+  const direction = avgEntry < stopLoss ? 'Short' : 'Long'
+
+  // Trade Value = quantity * avgEntry
+  const tradeValue = quantity * avgEntry
+
+  // Commission = 0.035% on both entry and exit (only if trade is closed)
+  let commission = null
+  if (avgExit !== null) {
+    commission = quantity * (avgEntry + avgExit) * 0.00035
+  }
+
+  return { direction, tradeValue, commission }
+}
+
+/**
  * Get single trade details
  * GET /api/trades/:id
  */
@@ -201,7 +222,13 @@ export const getTrade = async (req, res) => {
       return res.error({ message: TRADE_MESSAGES.TRADE_NOT_FOUND })
     }
 
-    res.ok(trade)
+    // Add derived fields
+    const derived = calculateDerivedFields(trade)
+
+    res.ok({
+      ...trade,
+      derived
+    })
   } catch (error) {
     console.log(error)
     res.error(error)
