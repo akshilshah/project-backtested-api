@@ -67,7 +67,7 @@ export const createTrade = async (req, res) => {
       }
     })
 
-    res.created({ message: TRADE_MESSAGES.TRADE_CREATED, trade })
+    res.created(trade)
   } catch (error) {
     console.log(error)
     res.error(error)
@@ -201,7 +201,7 @@ export const getTrade = async (req, res) => {
       return res.error({ message: TRADE_MESSAGES.TRADE_NOT_FOUND })
     }
 
-    res.ok({ trade })
+    res.ok(trade)
   } catch (error) {
     console.log(error)
     res.error(error)
@@ -298,7 +298,7 @@ export const updateTrade = async (req, res) => {
       }
     })
 
-    res.ok({ message: TRADE_MESSAGES.TRADE_UPDATED, trade })
+    res.ok(trade)
   } catch (error) {
     console.log(error)
     res.error(error)
@@ -378,7 +378,7 @@ export const exitTrade = async (req, res) => {
       }
     })
 
-    res.ok({ message: TRADE_MESSAGES.TRADE_EXITED, trade })
+    res.ok(trade)
   } catch (error) {
     console.log(error)
     res.error(error)
