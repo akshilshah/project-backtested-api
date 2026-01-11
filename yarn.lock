@@ -10,68 +10,68 @@
     "@jridgewell/gen-mapping" "^0.3.5"
     "@jridgewell/trace-mapping" "^0.3.24"
 
-"@aws-crypto/crc32@5.2.0":
+"@aws-backtested/crc32@5.2.0":
   version "5.2.0"
-  resolved "https://registry.npmjs.org/@aws-crypto/crc32/-/crc32-5.2.0.tgz"
+  resolved "https://registry.npmjs.org/@aws-backtested/crc32/-/crc32-5.2.0.tgz"
   integrity sha512-nLbCWqQNgUiwwtFsen1AdzAtvuLRsQS8rYgMuxCrdKf9kOssamGLuPwyTY9wyYblNr9+1XM8v6zoDTPPSIeANg==
   dependencies:
-    "@aws-crypto/util" "^5.2.0"
+    "@aws-backtested/util" "^5.2.0"
     "@aws-sdk/types" "^3.222.0"
     tslib "^2.6.2"
 
-"@aws-crypto/crc32c@5.2.0":
+"@aws-backtested/crc32c@5.2.0":
   version "5.2.0"
-  resolved "https://registry.npmjs.org/@aws-crypto/crc32c/-/crc32c-5.2.0.tgz"
+  resolved "https://registry.npmjs.org/@aws-backtested/crc32c/-/crc32c-5.2.0.tgz"
   integrity sha512-+iWb8qaHLYKrNvGRbiYRHSdKRWhto5XlZUEBwDjYNf+ly5SVYG6zEoYIdxvf5R3zyeP16w4PLBn3rH1xc74Rag==
   dependencies:
-    "@aws-crypto/util" "^5.2.0"
+    "@aws-backtested/util" "^5.2.0"
     "@aws-sdk/types" "^3.222.0"
     tslib "^2.6.2"
 
-"@aws-crypto/sha1-browser@5.2.0":
+"@aws-backtested/sha1-browser@5.2.0":
   version "5.2.0"
-  resolved "https://registry.npmjs.org/@aws-crypto/sha1-browser/-/sha1-browser-5.2.0.tgz"
+  resolved "https://registry.npmjs.org/@aws-backtested/sha1-browser/-/sha1-browser-5.2.0.tgz"
   integrity sha512-OH6lveCFfcDjX4dbAvCFSYUjJZjDr/3XJ3xHtjn3Oj5b9RjojQo8npoLeA/bNwkOkrSQ0wgrHzXk4tDRxGKJeg==
   dependencies:
-    "@aws-crypto/supports-web-crypto" "^5.2.0"
-    "@aws-crypto/util" "^5.2.0"
+    "@aws-backtested/supports-web-backtested" "^5.2.0"
+    "@aws-backtested/util" "^5.2.0"
     "@aws-sdk/types" "^3.222.0"
     "@aws-sdk/util-locate-window" "^3.0.0"
     "@smithy/util-utf8" "^2.0.0"
     tslib "^2.6.2"
 
-"@aws-crypto/sha256-browser@5.2.0":
+"@aws-backtested/sha256-browser@5.2.0":
   version "5.2.0"
-  resolved "https://registry.npmjs.org/@aws-crypto/sha256-browser/-/sha256-browser-5.2.0.tgz"
+  resolved "https://registry.npmjs.org/@aws-backtested/sha256-browser/-/sha256-browser-5.2.0.tgz"
   integrity sha512-AXfN/lGotSQwu6HNcEsIASo7kWXZ5HYWvfOmSNKDsEqC4OashTp8alTmaz+F7TC2L083SFv5RdB+qU3Vs1kZqw==
   dependencies:
-    "@aws-crypto/sha256-js" "^5.2.0"
-    "@aws-crypto/supports-web-crypto" "^5.2.0"
-    "@aws-crypto/util" "^5.2.0"
+    "@aws-backtested/sha256-js" "^5.2.0"
+    "@aws-backtested/supports-web-backtested" "^5.2.0"
+    "@aws-backtested/util" "^5.2.0"
     "@aws-sdk/types" "^3.222.0"
     "@aws-sdk/util-locate-window" "^3.0.0"
     "@smithy/util-utf8" "^2.0.0"
     tslib "^2.6.2"
 
-"@aws-crypto/sha256-js@5.2.0", "@aws-crypto/sha256-js@^5.2.0":
+"@aws-backtested/sha256-js@5.2.0", "@aws-backtested/sha256-js@^5.2.0":
   version "5.2.0"
-  resolved "https://registry.npmjs.org/@aws-crypto/sha256-js/-/sha256-js-5.2.0.tgz"
+  resolved "https://registry.npmjs.org/@aws-backtested/sha256-js/-/sha256-js-5.2.0.tgz"
   integrity sha512-FFQQyu7edu4ufvIZ+OadFpHHOt+eSTBaYaki44c+akjg7qZg9oOQeLlk77F6tSYqjDAFClrHJk9tMf0HdVyOvA==
   dependencies:
-    "@aws-crypto/util" "^5.2.0"
+    "@aws-backtested/util" "^5.2.0"
     "@aws-sdk/types" "^3.222.0"
     tslib "^2.6.2"
 
-"@aws-crypto/supports-web-crypto@^5.2.0":
+"@aws-backtested/supports-web-backtested@^5.2.0":
   version "5.2.0"
-  resolved "https://registry.npmjs.org/@aws-crypto/supports-web-crypto/-/supports-web-crypto-5.2.0.tgz"
+  resolved "https://registry.npmjs.org/@aws-backtested/supports-web-backtested/-/supports-web-backtested-5.2.0.tgz"
   integrity sha512-iAvUotm021kM33eCdNfwIN//F77/IADDSs58i+MDaOqFrVjZo9bAal0NK7HurRuWLLpF1iLX7gbWrjHjeo+YFg==
   dependencies:
     tslib "^2.6.2"
 
-"@aws-crypto/util@5.2.0", "@aws-crypto/util@^5.2.0":
+"@aws-backtested/util@5.2.0", "@aws-backtested/util@^5.2.0":
   version "5.2.0"
-  resolved "https://registry.npmjs.org/@aws-crypto/util/-/util-5.2.0.tgz"
+  resolved "https://registry.npmjs.org/@aws-backtested/util/-/util-5.2.0.tgz"
   integrity sha512-4RkU9EsI6ZpBve5fseQlGNUWKMa1RLPQ1dnjnQoe07ldfIzcsGb5hC5W0Dm7u423KWzawlrpbjXBrXCEv9zazQ==
   dependencies:
     "@aws-sdk/types" "^3.222.0"
@@ -91,8 +91,8 @@
   resolved "https://registry.npmjs.org/@aws-sdk/client-cognito-identity/-/client-cognito-identity-3.758.0.tgz"
   integrity sha512-8bOXVYtf/0OUN0jXTIHLv3V0TAS6kvvCRAy7nmiL/fDde0O+ChW1WZU7CVPAOtFEpFCdKskDcxFspM7m1k6qyg==
   dependencies:
-    "@aws-crypto/sha256-browser" "5.2.0"
-    "@aws-crypto/sha256-js" "5.2.0"
+    "@aws-backtested/sha256-browser" "5.2.0"
+    "@aws-backtested/sha256-js" "5.2.0"
     "@aws-sdk/core" "3.758.0"
     "@aws-sdk/credential-provider-node" "3.758.0"
     "@aws-sdk/middleware-host-header" "3.734.0"
@@ -136,9 +136,9 @@
   resolved "https://registry.npmjs.org/@aws-sdk/client-s3/-/client-s3-3.840.0.tgz"
   integrity sha512-dRuo03EqGBbl9+PTogpwY9bYmGWIjn8nB82HN5Qj20otgjUvhLOdEkkip9mroYsrvqNoKbMedWdCudIcB/YY1w==
   dependencies:
-    "@aws-crypto/sha1-browser" "5.2.0"
-    "@aws-crypto/sha256-browser" "5.2.0"
-    "@aws-crypto/sha256-js" "5.2.0"
+    "@aws-backtested/sha1-browser" "5.2.0"
+    "@aws-backtested/sha256-browser" "5.2.0"
+    "@aws-backtested/sha256-js" "5.2.0"
     "@aws-sdk/core" "3.840.0"
     "@aws-sdk/credential-provider-node" "3.840.0"
     "@aws-sdk/middleware-bucket-endpoint" "3.840.0"
@@ -200,8 +200,8 @@
   resolved "https://registry.npmjs.org/@aws-sdk/client-ses/-/client-ses-3.758.0.tgz"
   integrity sha512-cWBjZqY7SsFdTTSw3726DEPy3d7FfQ8qrw21RCukM/p3Ty42NWauHkqgxOmRygeiSY3ygHmWexc32B+4RXXqTw==
   dependencies:
-    "@aws-crypto/sha256-browser" "5.2.0"
-    "@aws-crypto/sha256-js" "5.2.0"
+    "@aws-backtested/sha256-browser" "5.2.0"
+    "@aws-backtested/sha256-js" "5.2.0"
     "@aws-sdk/core" "3.758.0"
     "@aws-sdk/credential-provider-node" "3.758.0"
     "@aws-sdk/middleware-host-header" "3.734.0"
@@ -246,8 +246,8 @@
   resolved "https://registry.npmjs.org/@aws-sdk/client-sqs/-/client-sqs-3.758.0.tgz"
   integrity sha512-AJ+FxzCkzHuS9ewoPi820dMsoPzq5wj8UvTvDaxwUfIM1LiWAhpSvr+mF7MuplIc6liU6hCndCqGO7lxLVxvrQ==
   dependencies:
-    "@aws-crypto/sha256-browser" "5.2.0"
-    "@aws-crypto/sha256-js" "5.2.0"
+    "@aws-backtested/sha256-browser" "5.2.0"
+    "@aws-backtested/sha256-js" "5.2.0"
     "@aws-sdk/core" "3.758.0"
     "@aws-sdk/credential-provider-node" "3.758.0"
     "@aws-sdk/middleware-host-header" "3.734.0"
@@ -293,8 +293,8 @@
   resolved "https://registry.npmjs.org/@aws-sdk/client-sso/-/client-sso-3.758.0.tgz"
   integrity sha512-BoGO6IIWrLyLxQG6txJw6RT2urmbtlwfggapNCrNPyYjlXpzTSJhBYjndg7TpDATFd0SXL0zm8y/tXsUXNkdYQ==
   dependencies:
-    "@aws-crypto/sha256-browser" "5.2.0"
-    "@aws-crypto/sha256-js" "5.2.0"
+    "@aws-backtested/sha256-browser" "5.2.0"
+    "@aws-backtested/sha256-js" "5.2.0"
     "@aws-sdk/core" "3.758.0"
     "@aws-sdk/middleware-host-header" "3.734.0"
     "@aws-sdk/middleware-logger" "3.734.0"
@@ -337,8 +337,8 @@
   resolved "https://registry.npmjs.org/@aws-sdk/client-sso/-/client-sso-3.840.0.tgz"
   integrity sha512-3Zp+FWN2hhmKdpS0Ragi5V2ZPsZNScE3jlbgoJjzjI/roHZqO+e3/+XFN4TlM0DsPKYJNp+1TAjmhxN6rOnfYA==
   dependencies:
-    "@aws-crypto/sha256-browser" "5.2.0"
-    "@aws-crypto/sha256-js" "5.2.0"
+    "@aws-backtested/sha256-browser" "5.2.0"
+    "@aws-backtested/sha256-js" "5.2.0"
     "@aws-sdk/core" "3.840.0"
     "@aws-sdk/middleware-host-header" "3.840.0"
     "@aws-sdk/middleware-logger" "3.840.0"
@@ -688,9 +688,9 @@
   resolved "https://registry.npmjs.org/@aws-sdk/middleware-flexible-checksums/-/middleware-flexible-checksums-3.840.0.tgz"
   integrity sha512-Kg/o2G6o72sdoRH0J+avdcf668gM1bp6O4VeEXpXwUj/urQnV5qiB2q1EYT110INHUKWOLXPND3sQAqh6sTqHw==
   dependencies:
-    "@aws-crypto/crc32" "5.2.0"
-    "@aws-crypto/crc32c" "5.2.0"
-    "@aws-crypto/util" "5.2.0"
+    "@aws-backtested/crc32" "5.2.0"
+    "@aws-backtested/crc32c" "5.2.0"
+    "@aws-backtested/util" "5.2.0"
     "@aws-sdk/core" "3.840.0"
     "@aws-sdk/types" "3.840.0"
     "@smithy/is-array-buffer" "^4.0.0"
@@ -841,8 +841,8 @@
   resolved "https://registry.npmjs.org/@aws-sdk/nested-clients/-/nested-clients-3.758.0.tgz"
   integrity sha512-YZ5s7PSvyF3Mt2h1EQulCG93uybprNGbBkPmVuy/HMMfbFTt4iL3SbKjxqvOZelm86epFfj7pvK7FliI2WOEcg==
   dependencies:
-    "@aws-crypto/sha256-browser" "5.2.0"
-    "@aws-crypto/sha256-js" "5.2.0"
+    "@aws-backtested/sha256-browser" "5.2.0"
+    "@aws-backtested/sha256-js" "5.2.0"
     "@aws-sdk/core" "3.758.0"
     "@aws-sdk/middleware-host-header" "3.734.0"
     "@aws-sdk/middleware-logger" "3.734.0"
@@ -885,8 +885,8 @@
   resolved "https://registry.npmjs.org/@aws-sdk/nested-clients/-/nested-clients-3.840.0.tgz"
   integrity sha512-LXYYo9+n4hRqnRSIMXLBb+BLz+cEmjMtTudwK1BF6Bn2RfdDv29KuyeDRrPCS3TwKl7ZKmXUmE9n5UuHAPfBpA==
   dependencies:
-    "@aws-crypto/sha256-browser" "5.2.0"
-    "@aws-crypto/sha256-js" "5.2.0"
+    "@aws-backtested/sha256-browser" "5.2.0"
+    "@aws-backtested/sha256-js" "5.2.0"
     "@aws-sdk/core" "3.840.0"
     "@aws-sdk/middleware-host-header" "3.840.0"
     "@aws-sdk/middleware-logger" "3.840.0"
@@ -2987,7 +2987,7 @@
   resolved "https://registry.npmjs.org/@smithy/eventstream-codec/-/eventstream-codec-4.0.4.tgz"
   integrity sha512-7XoWfZqWb/QoR/rAU4VSi0mWnO2vu9/ltS6JZ5ZSZv0eovLVfDfu0/AX4ub33RsJTOth3TiFWSHS5YdztvFnig==
   dependencies:
-    "@aws-crypto/crc32" "5.2.0"
+    "@aws-backtested/crc32" "5.2.0"
     "@smithy/types" "^4.3.1"
     "@smithy/util-hex-encoding" "^4.0.0"
     tslib "^2.6.2"
@@ -5472,9 +5472,9 @@ cross-spawn@^7.0.2, cross-spawn@^7.0.3, cross-spawn@^7.0.6:
     shebang-command "^2.0.0"
     which "^2.0.1"
 
-crypto-random-string@^2.0.0:
+backtested-random-string@^2.0.0:
   version "2.0.0"
-  resolved "https://registry.npmjs.org/crypto-random-string/-/crypto-random-string-2.0.0.tgz"
+  resolved "https://registry.npmjs.org/backtested-random-string/-/backtested-random-string-2.0.0.tgz"
   integrity sha512-v1plID3y9r/lPhviJ1wrXpLeyUIGAZ2SHNYTEapm7/8A9nLPoyvVp3RK/EPFqn5kEznyWgYZNsRtYYIWbuG8KA==
 
 css-select@^5.1.0:
@@ -10804,7 +10804,7 @@ unique-string@^2.0.0:
   resolved "https://registry.npmjs.org/unique-string/-/unique-string-2.0.0.tgz"
   integrity sha512-uNaeirEPvpZWSgzwsPGtU2zVSTrn/8L5q/IexZmH0eH6SA73CmAA5U4GwORTxQAZs95TAXLNqeLoPPNO5gZfWg==
   dependencies:
-    crypto-random-string "^2.0.0"
+    backtested-random-string "^2.0.0"
 
 unpipe@1.0.0, unpipe@~1.0.0:
   version "1.0.0"

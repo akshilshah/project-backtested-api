@@ -13,7 +13,7 @@ os: linux
 # os: windows
 files:
   - source: /
-    destination: /home/ubuntu/crypto
+    destination: /home/ubuntu/backtested
 # For deployments to Amazon Linux and Ubuntu Server instances,
 #   you can specify a "permissions"
 #   section here that describes special permissions to apply to the files
@@ -23,7 +23,7 @@ files:
 #   "permissions" section altogether. A blank or incomplete "permissions"
 #   section may cause associated deployments to fail.
 permissions:
-  - object: /home/ubuntu/crypto
+  - object: /home/ubuntu/backtested
     owner: ubuntu
     group: ubuntu
 # If you are not running any commands on the instance, then remove

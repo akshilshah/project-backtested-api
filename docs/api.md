@@ -280,14 +280,14 @@ Updates the user's application settings.
 **URL**: `POST /api/masters/coins`
 **Auth**: Required
 
-Creates a new coin/cryptocurrency.
+Creates a new coin/backtestedcurrency.
 
 **Request Body**:
 ```json
 {
   "name": "Bitcoin",
   "symbol": "BTC",
-  "description": "The first decentralized cryptocurrency"
+  "description": "The first decentralized backtestedcurrency"
 }
 ```
 
@@ -307,7 +307,7 @@ Creates a new coin/cryptocurrency.
       "id": 1,
       "name": "Bitcoin",
       "symbol": "BTC",
-      "description": "The first decentralized cryptocurrency",
+      "description": "The first decentralized backtestedcurrency",
       "organizationId": 1,
       "createdAt": "2024-01-15T10:30:00.000Z",
       "updatedAt": "2024-01-15T10:30:00.000Z"
@@ -344,7 +344,7 @@ Retrieves all coins for the authenticated user's organization.
         "id": 1,
         "name": "Bitcoin",
         "symbol": "BTC",
-        "description": "The first decentralized cryptocurrency",
+        "description": "The first decentralized backtestedcurrency",
         "createdAt": "2024-01-15T10:30:00.000Z",
         "updatedAt": "2024-01-15T10:30:00.000Z"
       }
@@ -375,7 +375,7 @@ Retrieves a specific coin by ID.
       "id": 1,
       "name": "Bitcoin",
       "symbol": "BTC",
-      "description": "The first decentralized cryptocurrency",
+      "description": "The first decentralized backtestedcurrency",
       "createdAt": "2024-01-15T10:30:00.000Z",
       "updatedAt": "2024-01-15T10:30:00.000Z",
       "createdBy": {

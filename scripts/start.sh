@@ -1,4 +1,4 @@
-cd /home/ubuntu/crypto
+cd /home/ubuntu/backtested
 
 yarn stop
 

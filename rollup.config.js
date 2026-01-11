@@ -1,7 +1,7 @@
 import run from '@rollup/plugin-run'
+import typescript from '@rollup/plugin-typescript'
 import babel from 'rollup-plugin-babel'
 import localResolve from 'rollup-plugin-local-resolve'
-import typescript from '@rollup/plugin-typescript'
 
 const dev =
   process.env.NODE_ENV !== 'production' && process.env.NODE_ENV !== 'build'
@@ -71,8 +71,8 @@ export default {
     'node:fs',
     'fs',
     'fs/promises',
-    'crypto',
-    'node:crypto',
+    'backtested',
+    'node:backtested',
     'path',
     'node:path',
     'node:url',

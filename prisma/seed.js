@@ -10,16 +10,16 @@ const adapter = new PrismaPg({
 const db = new PrismaClient({ adapter })
 
 const TOP_10_COINS = [
-  { name: 'Bitcoin', symbol: 'BTC', description: 'The first and largest cryptocurrency by market cap' },
+  { name: 'Bitcoin', symbol: 'BTC', description: 'The first and largest backtestedcurrency by market cap' },
   { name: 'Ethereum', symbol: 'ETH', description: 'Decentralized platform for smart contracts and DApps' },
   { name: 'Tether', symbol: 'USDT', description: 'Stablecoin pegged to US Dollar' },
   { name: 'BNB', symbol: 'BNB', description: 'Native token of Binance ecosystem' },
   { name: 'Solana', symbol: 'SOL', description: 'High-performance blockchain for DApps' },
-  { name: 'XRP', symbol: 'XRP', description: 'Digital payment protocol and cryptocurrency' },
+  { name: 'XRP', symbol: 'XRP', description: 'Digital payment protocol and backtestedcurrency' },
   { name: 'USD Coin', symbol: 'USDC', description: 'Stablecoin pegged to US Dollar' },
   { name: 'Cardano', symbol: 'ADA', description: 'Proof-of-stake blockchain platform' },
   { name: 'Avalanche', symbol: 'AVAX', description: 'Platform for decentralized applications' },
-  { name: 'Dogecoin', symbol: 'DOGE', description: 'Meme cryptocurrency with strong community' }
+  { name: 'Dogecoin', symbol: 'DOGE', description: 'Meme backtestedcurrency with strong community' }
 ]
 
 const TRADING_STRATEGIES = [
