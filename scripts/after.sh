@@ -1,7 +1,7 @@
 cd /home/ubuntu/backtested
 
 # download the env file
-current_env=`cat /etc/backtestedagent/env`
+current_env=`cat /etc/backtested/env`
 sudo -u ubuntu /home/ubuntu/.local/bin/aws s3 cp s3://ak-apps-configs/$current_env/$current_env.backtested.env .env
 
 # link the shared node_modules
