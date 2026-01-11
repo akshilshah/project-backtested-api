@@ -216,6 +216,45 @@ export const updateProfile = async (req, res) => {
 }
 
 /**
+ * Get User Settings
+ * GET /api/auth/settings
+ */
+export const getSettings = async (req, res) => {
+  try {
+    // Check if settings exist
+    let settings = await db.userSettings.findUnique({
+      where: { userId: req.context.user.id }
+    })
+
+    if (!settings) {
+      // Return default settings if they don't exist
+      return res.ok({
+        currency: 'USD',
+        timezone: 'UTC',
+        dateFormat: 'MM/DD/YYYY',
+        theme: 'system',
+        compactMode: false,
+        tableDensity: 'standard',
+        preferences: {}
+      })
+    }
+
+    res.ok({
+      currency: settings.currency,
+      timezone: settings.timezone,
+      dateFormat: settings.dateFormat,
+      theme: settings.theme,
+      compactMode: settings.compactMode,
+      tableDensity: settings.tableDensity,
+      preferences: settings.preferences
+    })
+  } catch (error) {
+    console.log(error)
+    res.error(error)
+  }
+}
+
+/**
  * Update User Settings
  * PUT /api/auth/settings
  */
