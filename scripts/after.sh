@@ -4,27 +4,26 @@ cd /home/ubuntu/backtested
 current_env=`cat /etc/backtested/env`
 sudo -u ubuntu /usr/local/bin/aws s3 cp s3://ak-apps-configs/$current_env/$current_env.backtested.env .env
 
-# link the shared node_modules
+
 ln -s /home/ubuntu/shared/backtested/node_modules node_modules
 
-# Run yarn commands as ubuntu user with full environment
-sudo -u ubuntu -i bash << 'EOF'
-cd /home/ubuntu/backtested
-yarn
+# Set PATH to include common locations for node and yarn
+export PATH="/usr/local/bin:/usr/bin:/bin:$PATH"
+
+# Run yarn commands as ubuntu user
+sudo -u ubuntu bash -c "cd /home/ubuntu/backtested && export PATH=\"/usr/local/bin:/usr/bin:/bin:\$PATH\" && yarn"
 echo "Applying migrations"
 
-yarn db:migrate:apply
-
+sudo -u ubuntu bash -c "cd /home/ubuntu/backtested && export PATH=\"/usr/local/bin:/usr/bin:/bin:\$PATH\" && yarn db:migrate:apply"
 checker=$?
 if [ "$checker" -ne "0" ]; then
     exit $checker
 fi
 
-yarn db:generate
+sudo -u ubuntu bash -c "cd /home/ubuntu/backtested && export PATH=\"/usr/local/bin:/usr/bin:/bin:\$PATH\" && yarn db:generate"
 checker=$?
 if [ "$checker" -ne "0" ]; then
     exit $checker
 fi
 
-yarn build
-EOF
+sudo -u ubuntu bash -c "cd /home/ubuntu/backtested && export PATH=\"/usr/local/bin:/usr/bin:/bin:\$PATH\" && yarn build"
