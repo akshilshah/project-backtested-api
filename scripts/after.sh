@@ -4,7 +4,8 @@ cd /home/ubuntu/backtested
 current_env=`cat /etc/backtested/env`
 sudo -u ubuntu /usr/local/bin/aws s3 cp s3://ak-apps-configs/$current_env/$current_env.backtested.env .env
 
-
+# Remove existing node_modules if present, then create symlink
+rm -rf node_modules
 ln -s /home/ubuntu/shared/backtested/node_modules node_modules
 
 # Set PATH to include NVM node/yarn location
