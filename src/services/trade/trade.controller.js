@@ -52,7 +52,9 @@ export const createTrade = async (req, res) => {
         tradeTime,
         avgEntry: body.avgEntry,
         stopLoss: body.stopLoss,
+        stopLossPercentage: body.stopLossPercentage,
         quantity: body.quantity,
+        amount: body.amount,
         notes: body.notes || null,
         status: 'OPEN',
         coin: { connect: { id: body.coinId } },
@@ -304,7 +306,9 @@ export const updateTrade = async (req, res) => {
     if (body.strategyId) updateData.strategy = { connect: { id: body.strategyId } }
     if (body.avgEntry !== undefined) updateData.avgEntry = body.avgEntry
     if (body.stopLoss !== undefined) updateData.stopLoss = body.stopLoss
+    if (body.stopLossPercentage !== undefined) updateData.stopLossPercentage = body.stopLossPercentage
     if (body.quantity !== undefined) updateData.quantity = body.quantity
+    if (body.amount !== undefined) updateData.amount = body.amount
     if (body.notes !== undefined) updateData.notes = body.notes || null
 
     if (body.tradeDate) {

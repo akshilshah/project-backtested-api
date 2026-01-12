@@ -146,6 +146,14 @@ export const createTradeSchema = Joi.object({
       'number.positive': 'Stop loss must be positive',
       'any.required': 'Stop loss is required'
     }),
+  stopLossPercentage: Joi.number()
+    .positive()
+    .required()
+    .messages({
+      'number.base': 'Stop loss percentage must be a number',
+      'number.positive': 'Stop loss percentage must be positive',
+      'any.required': 'Stop loss percentage is required'
+    }),
   quantity: Joi.number()
     .positive()
     .required()
@@ -153,6 +161,14 @@ export const createTradeSchema = Joi.object({
       'number.base': 'Quantity must be a number',
       'number.positive': 'Quantity must be positive',
       'any.required': 'Quantity is required'
+    }),
+  amount: Joi.number()
+    .positive()
+    .required()
+    .messages({
+      'number.base': 'Amount must be a number',
+      'number.positive': 'Amount must be positive',
+      'any.required': 'Amount is required'
     }),
   notes: Joi.string()
     .allow('')
@@ -205,12 +221,26 @@ export const updateTradeSchema = Joi.object({
       'number.base': 'Stop loss must be a number',
       'number.positive': 'Stop loss must be positive'
     }),
+  stopLossPercentage: Joi.number()
+    .positive()
+    .optional()
+    .messages({
+      'number.base': 'Stop loss percentage must be a number',
+      'number.positive': 'Stop loss percentage must be positive'
+    }),
   quantity: Joi.number()
     .positive()
     .optional()
     .messages({
       'number.base': 'Quantity must be a number',
       'number.positive': 'Quantity must be positive'
+    }),
+  amount: Joi.number()
+    .positive()
+    .optional()
+    .messages({
+      'number.base': 'Amount must be a number',
+      'number.positive': 'Amount must be positive'
     }),
   notes: Joi.string()
     .allow('')

@@ -160,9 +160,11 @@ model Trade {
   tradeTime DateTime @map("trade_time") @db.Time()
 
   // Entry details
-  avgEntry Float  @map("avg_entry")
-  stopLoss Float  @map("stop_loss")
-  quantity Float
+  avgEntry           Float  @map("avg_entry")
+  stopLoss           Float  @map("stop_loss")
+  stopLossPercentage Float  @map("stop_loss_percentage") // Configurable stop loss % (e.g., 1.8)
+  quantity           Float
+  amount             Float  // Account balance/size used for this trade
 
   // Exit details (nullable until trade is closed)
   avgExit  Float?    @map("avg_exit")
