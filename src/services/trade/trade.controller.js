@@ -1,12 +1,12 @@
 import { db } from '../../config/db'
-import { TRADE_MESSAGES } from './constants'
 import {
+  analyticsSchema,
   createTradeSchema,
-  updateTradeSchema,
   exitTradeSchema,
   listTradesSchema,
-  analyticsSchema
+  updateTradeSchema
 } from '../../utils/validation'
+import { TRADE_MESSAGES } from './constants'
 
 /**
  * Create a new trade
@@ -170,24 +170,85 @@ export const listTrades = async (req, res) => {
 }
 
 /**
- * Calculate derived trade fields
+ * Calculate derived trade fields based on Excel formulas
  */
 const calculateDerivedFields = trade => {
-  const { avgEntry, stopLoss, avgExit, quantity } = trade
+  const { avgEntry, stopLoss, stopLossPercentage, amount, avgExit } = trade
 
   // Direction: Short if entry < stopLoss, else Long
+  // Excel: =IF(H2>I2,"Long",IF(I2>H2,"Short",""))
   const direction = avgEntry < stopLoss ? 'Short' : 'Long'
 
-  // Trade Value = quantity * avgEntry
-  const tradeValue = quantity * avgEntry
+  // Expected Loss: Amount * stopLossPercentage / 100
+  // Excel: =K2*1.8% (using stopLossPercentage field)
+  const expectedLoss = amount * (stopLossPercentage / 100)
 
-  // Commission = 0.035% on both entry and exit (only if trade is closed)
-  let commission = null
-  if (avgExit !== null) {
-    commission = quantity * (avgEntry + avgExit) * 0.00035
+  // Calculate risk per unit based on direction
+  // Excel: IF(F2="Short", (H2-I2), IF(F2="Long", (I2-H2), "0"))*-1
+  let riskPerUnit
+  if (direction === 'Short') {
+    riskPerUnit = -(avgEntry - stopLoss) // = (stopLoss - avgEntry)
+  } else {
+    // Long
+    riskPerUnit = -(stopLoss - avgEntry) // = (avgEntry - stopLoss)
   }
 
-  return { direction, tradeValue, commission }
+  // Trade Value: Risk-based position sizing
+  // Excel: =((J2/(IF(F2="Short", (H2-I2), IF(F2="Long", (I2-H2), "0"))*-1))*H2)
+  // This calculates position size that would result in expectedLoss if stop is hit
+  const tradeValue =
+    riskPerUnit !== 0 ? (expectedLoss / riskPerUnit) * avgEntry : 0
+
+  // Position Size: Trade Value / Average Entry
+  // Excel: =M2/H2
+  const positionSize = avgEntry !== 0 ? tradeValue / avgEntry : 0
+
+  // Leverage: Trade Value / Amount
+  // Excel: =M2/K2
+  const leverage = amount !== 0 ? tradeValue / amount : 0
+
+  // Commission (only if trade is closed)
+  // Excel: =IF(G2="Limit", 0.0002*M2, 0.0005*M2) + 0.0005*O2*L2 + M2*R2
+  // Note: Assuming Limit orders (0.02% entry) since entryOrder field doesn't exist
+  // Funding rate (R2) is set to 0 since it doesn't exist in the model
+  let commission = null
+  let realisedProfitLoss = null
+
+  if (avgExit !== null) {
+    // Entry commission: 0.02% for Limit orders (0.0002)
+    const entryCommission = 0.0002 * tradeValue
+
+    // Exit commission: 0.05% on (avgExit * positionSize)
+    const exitCommission = 0.0005 * avgExit * positionSize
+
+    // Funding: tradeValue * fundingRate (set to 0 for now)
+    const funding = 0
+
+    commission = entryCommission + exitCommission + funding
+
+    // Realised Profit/Loss (Net P/L after commission)
+    // Excel: =(IF(F2="Short", (H2-O2)*L2, IF(F2="Long", (O2-H2)*L2, "0")) - Q2
+    let grossProfitLoss
+    if (direction === 'Short') {
+      grossProfitLoss = (avgEntry - avgExit) * positionSize
+    } else {
+      // Long
+      grossProfitLoss = (avgExit - avgEntry) * positionSize
+    }
+
+    // Net P/L = Gross P/L - Commission
+    realisedProfitLoss = grossProfitLoss - commission
+  }
+
+  return {
+    direction,
+    expectedLoss,
+    tradeValue,
+    positionSize,
+    leverage,
+    commission,
+    realisedProfitLoss
+  }
 }
 
 /**
@@ -303,10 +364,12 @@ export const updateTrade = async (req, res) => {
     }
 
     if (body.coinId) updateData.coin = { connect: { id: body.coinId } }
-    if (body.strategyId) updateData.strategy = { connect: { id: body.strategyId } }
+    if (body.strategyId)
+      updateData.strategy = { connect: { id: body.strategyId } }
     if (body.avgEntry !== undefined) updateData.avgEntry = body.avgEntry
     if (body.stopLoss !== undefined) updateData.stopLoss = body.stopLoss
-    if (body.stopLossPercentage !== undefined) updateData.stopLossPercentage = body.stopLossPercentage
+    if (body.stopLossPercentage !== undefined)
+      updateData.stopLossPercentage = body.stopLossPercentage
     if (body.quantity !== undefined) updateData.quantity = body.quantity
     if (body.amount !== undefined) updateData.amount = body.amount
     if (body.notes !== undefined) updateData.notes = body.notes || null
@@ -378,16 +441,53 @@ export const exitTrade = async (req, res) => {
       return res.error({ message: TRADE_MESSAGES.INVALID_EXIT_DATE })
     }
 
-    // Calculate P&L
-    const profitLoss = (body.avgExit - existingTrade.avgEntry) * existingTrade.quantity
+    // Determine trade direction
+    const direction =
+      existingTrade.avgEntry < existingTrade.stopLoss ? 'Short' : 'Long'
 
-    // Calculate P&L percentage
-    const profitLossPercentage = ((body.avgExit - existingTrade.avgEntry) / existingTrade.avgEntry) * 100
+    // Calculate risk-based position size (matching Excel formula)
+    const expectedLoss =
+      existingTrade.amount * (existingTrade.stopLossPercentage / 100)
+    let riskPerUnit
+    if (direction === 'Short') {
+      riskPerUnit = -(existingTrade.avgEntry - existingTrade.stopLoss)
+    } else {
+      riskPerUnit = -(existingTrade.stopLoss - existingTrade.avgEntry)
+    }
+    const tradeValue =
+      riskPerUnit !== 0
+        ? (expectedLoss / riskPerUnit) * existingTrade.avgEntry
+        : 0
+    const positionSize =
+      existingTrade.avgEntry !== 0 ? tradeValue / existingTrade.avgEntry : 0
+
+    // Calculate commission
+    const entryCommission = 0.0002 * tradeValue
+    const exitCommission = 0.0005 * body.avgExit * positionSize
+    const commission = entryCommission + exitCommission
+
+    // Calculate P&L based on direction
+    let grossProfitLoss
+    if (direction === 'Short') {
+      // Short: profit when entry > exit
+      grossProfitLoss = (existingTrade.avgEntry - body.avgExit) * positionSize
+    } else {
+      // Long: profit when exit > entry
+      grossProfitLoss = (body.avgExit - existingTrade.avgEntry) * positionSize
+    }
+
+    // Net P&L after commission
+    const profitLoss = grossProfitLoss - commission
+
+    // Calculate P&L percentage (based on the account amount risked)
+    const profitLossPercentage = (profitLoss / existingTrade.amount) * 100
 
     // Calculate duration in days
     const tradeDateMs = existingTrade.tradeDate.getTime()
     const exitDateMs = exitDate.getTime()
-    const duration = Math.ceil((exitDateMs - tradeDateMs) / (1000 * 60 * 60 * 24))
+    const duration = Math.ceil(
+      (exitDateMs - tradeDateMs) / (1000 * 60 * 60 * 24)
+    )
 
     // Update trade with exit details
     const trade = await db.trade.update({
@@ -400,7 +500,8 @@ export const exitTrade = async (req, res) => {
         profitLoss,
         profitLossPercentage,
         duration,
-        notes: body.notes !== undefined ? (body.notes || null) : existingTrade.notes,
+        notes:
+          body.notes !== undefined ? body.notes || null : existingTrade.notes,
         updatedBy: { connect: { id: context.user.id } }
       },
       include: {
@@ -554,7 +655,8 @@ export const getAnalytics = async (req, res) => {
       }
     })
 
-    const winRate = closedTrades > 0 ? (profitableTrades / closedTrades) * 100 : 0
+    const winRate =
+      closedTrades > 0 ? (profitableTrades / closedTrades) * 100 : 0
 
     // Fetch coin and strategy names for the grouped data
     const coinIds = tradesByCoin.map(t => t.coinId)
