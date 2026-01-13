@@ -325,9 +325,18 @@ export const updateTrade = async (req, res) => {
       return res.error({ message: TRADE_MESSAGES.TRADE_NOT_FOUND })
     }
 
-    // Cannot update closed trades
+    // Cannot update closed trades (except notes)
     if (existingTrade.status === 'CLOSED') {
-      return res.error({ message: TRADE_MESSAGES.TRADE_CANNOT_UPDATE_CLOSED })
+      // Check if only notes are being updated
+      const updateKeys = Object.keys(body).filter(
+        key => body[key] !== undefined
+      )
+      const isOnlyNotesUpdate =
+        updateKeys.length === 1 && updateKeys[0] === 'notes'
+
+      if (!isOnlyNotesUpdate) {
+        return res.error({ message: TRADE_MESSAGES.TRADE_CANNOT_UPDATE_CLOSED })
+      }
     }
 
     // Verify coin if being updated
