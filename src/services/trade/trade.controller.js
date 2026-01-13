@@ -400,6 +400,91 @@ export const updateTrade = async (req, res) => {
 }
 
 /**
+ * Preview exit trade P&L calculation without closing the trade
+ * POST /api/trades/:id/preview-exit
+ */
+export const previewExitTrade = async (req, res) => {
+  try {
+    const context = req.context
+    const tradeId = parseInt(req.params.id, 10)
+
+    if (isNaN(tradeId)) {
+      return res.error({ message: 'Invalid trade ID' })
+    }
+
+    const { avgExit } = req.body
+
+    if (!avgExit || isNaN(Number(avgExit)) || Number(avgExit) <= 0) {
+      return res.error({ message: 'Valid exit price is required' })
+    }
+
+    // Find existing trade
+    const trade = await db.trade.findFirst({
+      where: {
+        id: tradeId,
+        organizationId: context.organization.id
+      }
+    })
+
+    if (!trade) {
+      return res.error({ message: TRADE_MESSAGES.TRADE_NOT_FOUND })
+    }
+
+    // Cannot preview for already closed trades
+    if (trade.status === 'CLOSED') {
+      return res.error({ message: TRADE_MESSAGES.TRADE_ALREADY_CLOSED })
+    }
+
+    // Determine trade direction
+    const direction = trade.avgEntry < trade.stopLoss ? 'Short' : 'Long'
+
+    // Calculate risk-based position size (matching Excel formula)
+    const expectedLoss = trade.amount * (trade.stopLossPercentage / 100)
+    let riskPerUnit
+    if (direction === 'Short') {
+      riskPerUnit = -(trade.avgEntry - trade.stopLoss)
+    } else {
+      riskPerUnit = -(trade.stopLoss - trade.avgEntry)
+    }
+    const tradeValue =
+      riskPerUnit !== 0 ? (expectedLoss / riskPerUnit) * trade.avgEntry : 0
+    const positionSize = trade.avgEntry !== 0 ? tradeValue / trade.avgEntry : 0
+
+    // Calculate commission
+    const entryCommission = 0.0002 * tradeValue
+    const exitCommission = 0.0005 * Number(avgExit) * positionSize
+    const commission = entryCommission + exitCommission
+
+    // Calculate P&L based on direction
+    let grossProfitLoss
+    if (direction === 'Short') {
+      // Short: profit when entry > exit
+      grossProfitLoss = (trade.avgEntry - Number(avgExit)) * positionSize
+    } else {
+      // Long: profit when exit > entry
+      grossProfitLoss = (Number(avgExit) - trade.avgEntry) * positionSize
+    }
+
+    // Net P&L after commission
+    const profitLoss = grossProfitLoss - commission
+
+    // Calculate P&L percentage (based on the account amount risked)
+    const profitLossPercentage = (profitLoss / trade.amount) * 100
+
+    res.ok({
+      profitLoss,
+      profitLossPercentage,
+      direction,
+      commission,
+      grossProfitLoss
+    })
+  } catch (error) {
+    console.log(error)
+    res.error(error)
+  }
+}
+
+/**
  * Exit/close a trade
  * POST /api/trades/:id/exit
  */

@@ -5,6 +5,7 @@ import {
   getTrade,
   updateTrade,
   exitTrade,
+  previewExitTrade,
   deleteTrade,
   getAnalytics
 } from './trade.controller'
@@ -20,6 +21,9 @@ router.get('/', listTrades)
 router.get('/:id', getTrade)
 router.put('/:id', updateTrade)
 router.delete('/:id', deleteTrade)
+
+// Preview exit trade (must be before :id/exit to avoid conflict)
+router.post('/:id/preview-exit', previewExitTrade)
 
 // Exit trade
 router.post('/:id/exit', exitTrade)
