@@ -19,11 +19,12 @@ model Organization {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   // Relations
-  users        User[]
-  userSettings UserSettings[]
-  coins        Coin[]
-  strategies   Strategy[]
-  trades       Trade[]
+  users          User[]
+  userSettings   UserSettings[]
+  coins          Coin[]
+  strategies     Strategy[]
+  trades         Trade[]
+  backtestTrades BacktestTrade[]
 
   @@map("organizations")
 }
@@ -57,6 +58,8 @@ model User {
   updatedStrategies Strategy[] @relation("StrategyUpdatedBy")
   createdTrades  Trade[]    @relation("TradeCreatedBy")
   updatedTrades  Trade[]    @relation("TradeUpdatedBy")
+  createdBacktestTrades BacktestTrade[] @relation("BacktestTradeCreatedBy")
+  updatedBacktestTrades BacktestTrade[] @relation("BacktestTradeUpdatedBy")
 
   @@map("users")
 }
@@ -107,7 +110,8 @@ model Coin {
   updatedBy   User?    @relation("CoinUpdatedBy", fields: [updatedById], references: [id])
 
   // Relations
-  trades Trade[]
+  trades         Trade[]
+  backtestTrades BacktestTrade[]
 
   @@unique([symbol, organizationId])
   @@map("coins")
@@ -136,6 +140,7 @@ model Strategy {
 
   // Relations
   trades Trade[]
+  backtestTrades BacktestTrade[]
 
   @@unique([name, organizationId])
   @@map("strategies")
@@ -207,4 +212,53 @@ model Trade {
   @@index([coinId])
   @@index([strategyId])
   @@map("trades")
+}
+
+// ==========================================
+// Backtest Trade Model
+// ==========================================
+model BacktestTrade {
+  id Int @id @default(autoincrement())
+
+  // Trade basic info
+  tradeDate DateTime @map("trade_date") @db.Date
+  tradeTime DateTime @map("trade_time") @db.Time()
+
+  // Entry details
+  entry    Float
+  stopLoss Float  @map("stop_loss")
+  exit     Float
+
+  // Calculated fields
+  direction String // "Long" or "Short" - calculated based on entry vs SL
+  rValue    Float  @map("r_value") // Profit/Loss in R units
+
+  // Notes/Comments
+  notes String?
+
+  // Coin relation
+  coinId Int  @map("coin_id")
+  coin   Coin @relation(fields: [coinId], references: [id])
+
+  // Strategy relation
+  strategyId Int      @map("strategy_id")
+  strategy   Strategy @relation(fields: [strategyId], references: [id])
+
+  // Organization relation
+  organizationId Int          @map("organization_id")
+  organization   Organization @relation(fields: [organizationId], references: [id])
+
+  // Audit fields
+  createdAt   DateTime @default(now()) @map("created_at")
+  createdById Int      @map("created_by_id")
+  createdBy   User     @relation("BacktestTradeCreatedBy", fields: [createdById], references: [id])
+  updatedAt   DateTime @updatedAt @map("updated_at")
+  updatedById Int?     @map("updated_by_id")
+  updatedBy   User?    @relation("BacktestTradeUpdatedBy", fields: [updatedById], references: [id])
+
+  @@index([organizationId, strategyId])
+  @@index([organizationId, tradeDate])
+  @@index([coinId])
+  @@index([strategyId])
+  @@map("backtest_trades")
 }
