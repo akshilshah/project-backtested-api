@@ -612,6 +612,125 @@ export const exitTrade = async (req, res) => {
 }
 
 /**
+ * Update exit details of a closed trade
+ * PUT /api/trades/:id/exit
+ */
+export const updateExitTrade = async (req, res) => {
+  try {
+    const context = req.context
+    const tradeId = parseInt(req.params.id, 10)
+
+    if (isNaN(tradeId)) {
+      return res.error({ message: 'Invalid trade ID' })
+    }
+
+    const body = await exitTradeSchema.validateAsync(req.body)
+
+    // Find existing trade
+    const existingTrade = await db.trade.findFirst({
+      where: {
+        id: tradeId,
+        organizationId: context.organization.id
+      }
+    })
+
+    if (!existingTrade) {
+      return res.error({ message: TRADE_MESSAGES.TRADE_NOT_FOUND })
+    }
+
+    // Can only update exit for closed trades
+    if (existingTrade.status !== 'CLOSED') {
+      return res.error({
+        message: 'Can only update exit details for closed trades'
+      })
+    }
+
+    // Parse exit date and time
+    const exitDate = new Date(body.exitDate)
+    const [hours, minutes, seconds] = body.exitTime.split(':').map(Number)
+    const exitTime = new Date(1970, 0, 1, hours, minutes, seconds)
+
+    // Validate exit date is not before trade date
+    if (exitDate < existingTrade.tradeDate) {
+      return res.error({ message: TRADE_MESSAGES.INVALID_EXIT_DATE })
+    }
+
+    // Determine trade direction
+    const direction =
+      existingTrade.avgEntry < existingTrade.stopLoss ? 'Short' : 'Long'
+
+    // Calculate risk-based position size (matching Excel formula)
+    const expectedLoss =
+      existingTrade.amount * (existingTrade.stopLossPercentage / 100)
+    let riskPerUnit
+    if (direction === 'Short') {
+      riskPerUnit = -(existingTrade.avgEntry - existingTrade.stopLoss)
+    } else {
+      riskPerUnit = -(existingTrade.stopLoss - existingTrade.avgEntry)
+    }
+    const tradeValue =
+      riskPerUnit !== 0
+        ? (expectedLoss / riskPerUnit) * existingTrade.avgEntry
+        : 0
+    const positionSize =
+      existingTrade.avgEntry !== 0 ? tradeValue / existingTrade.avgEntry : 0
+
+    // Calculate commission
+    const entryCommission = 0.0002 * tradeValue
+    const exitCommission = 0.0005 * body.avgExit * positionSize
+    const commission = entryCommission + exitCommission
+
+    // Calculate P&L based on direction
+    let grossProfitLoss
+    if (direction === 'Short') {
+      // Short: profit when entry > exit
+      grossProfitLoss = (existingTrade.avgEntry - body.avgExit) * positionSize
+    } else {
+      // Long: profit when exit > entry
+      grossProfitLoss = (body.avgExit - existingTrade.avgEntry) * positionSize
+    }
+
+    // Net P&L after commission
+    const profitLoss = grossProfitLoss - commission
+
+    // Calculate P&L percentage (based on the account amount risked)
+    const profitLossPercentage = (profitLoss / existingTrade.amount) * 100
+
+    // Calculate duration in days
+    const tradeDateMs = existingTrade.tradeDate.getTime()
+    const exitDateMs = exitDate.getTime()
+    const duration = Math.ceil(
+      (exitDateMs - tradeDateMs) / (1000 * 60 * 60 * 24)
+    )
+
+    // Update trade with new exit details
+    const trade = await db.trade.update({
+      where: { id: tradeId },
+      data: {
+        avgExit: body.avgExit,
+        exitDate,
+        exitTime,
+        profitLoss,
+        profitLossPercentage,
+        duration,
+        notes:
+          body.notes !== undefined ? body.notes || null : existingTrade.notes,
+        updatedBy: { connect: { id: context.user.id } }
+      },
+      include: {
+        coin: true,
+        strategy: true
+      }
+    })
+
+    res.ok(trade)
+  } catch (error) {
+    console.log(error)
+    res.error(error)
+  }
+}
+
+/**
  * Delete a trade
  * DELETE /api/trades/:id
  */

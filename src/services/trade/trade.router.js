@@ -5,6 +5,7 @@ import {
   getTrade,
   updateTrade,
   exitTrade,
+  updateExitTrade,
   previewExitTrade,
   deleteTrade,
   getAnalytics
@@ -27,5 +28,8 @@ router.post('/:id/preview-exit', previewExitTrade)
 
 // Exit trade
 router.post('/:id/exit', exitTrade)
+
+// Update exit details for closed trade
+router.put('/:id/exit', updateExitTrade)
 
 export default router
