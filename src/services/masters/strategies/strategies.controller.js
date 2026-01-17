@@ -27,6 +27,7 @@ export const createStrategy = async (req, res) => {
       data: {
         name: body.name,
         description: body.description,
+        notes: body.notes,
         rules: body.rules,
         organization: { connect: { id: context.organization.id } },
         createdBy: { connect: { id: context.user.id } },
@@ -56,6 +57,7 @@ export const listStrategies = async (req, res) => {
         id: true,
         name: true,
         description: true,
+        notes: true,
         rules: true,
         createdAt: true,
         updatedAt: true
@@ -83,6 +85,7 @@ export const getStrategy = async (req, res) => {
         id: true,
         name: true,
         description: true,
+        notes: true,
         rules: true,
         createdAt: true,
         updatedAt: true,
