@@ -412,7 +412,11 @@ export const getStrategyAnalytics = async (req, res) => {
         organizationId: context.organization.id
       },
       select: {
-        rValue: true
+        rValue: true,
+        tradeDate: true
+      },
+      orderBy: {
+        tradeDate: 'asc'
       }
     })
 
@@ -424,8 +428,18 @@ export const getStrategyAnalytics = async (req, res) => {
         avgLossR: 0,
         winPercentage: 0,
         lossPercentage: 0,
-        ev: 0
+        ev: 0,
+        daysTo100Trades: null
       })
+    }
+
+    // Calculate D_to_100T (Days to 100 trades)
+    let daysTo100Trades = null
+    if (backtestTrades.length >= 100) {
+      const firstTradeDate = new Date(backtestTrades[0].tradeDate)
+      const hundredthTradeDate = new Date(backtestTrades[99].tradeDate)
+      const timeDiff = hundredthTradeDate.getTime() - firstTradeDate.getTime()
+      daysTo100Trades = Math.ceil(timeDiff / (1000 * 60 * 60 * 24)) // Convert milliseconds to days
     }
 
     // Separate wins and losses
@@ -460,7 +474,8 @@ export const getStrategyAnalytics = async (req, res) => {
       lossPercentage: parseFloat(lossPercentage.toFixed(4)),
       ev: parseFloat(ev.toFixed(4)),
       wins: wins.length,
-      losses: losses.length
+      losses: losses.length,
+      daysTo100Trades
     })
   } catch (error) {
     console.log(error)
