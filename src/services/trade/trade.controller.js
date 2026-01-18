@@ -55,6 +55,10 @@ export const createTrade = async (req, res) => {
         stopLossPercentage: body.stopLossPercentage,
         quantity: body.quantity,
         amount: body.amount,
+        entryOrderType: body.entryOrderType || 'LIMIT',
+        entryFeePercentage:
+          body.entryFeePercentage ||
+          (body.entryOrderType === 'MARKET' ? 0.05 : 0.02),
         notes: body.notes || null,
         status: 'OPEN',
         coin: { connect: { id: body.coinId } },
@@ -173,7 +177,15 @@ export const listTrades = async (req, res) => {
  * Calculate derived trade fields based on Excel formulas
  */
 const calculateDerivedFields = trade => {
-  const { avgEntry, stopLoss, stopLossPercentage, amount, avgExit } = trade
+  const {
+    avgEntry,
+    stopLoss,
+    stopLossPercentage,
+    amount,
+    avgExit,
+    entryFeePercentage,
+    exitFeePercentage
+  } = trade
 
   // Direction: Short if entry < stopLoss, else Long
   // Excel: =IF(H2>I2,"Long",IF(I2>H2,"Short",""))
@@ -208,18 +220,20 @@ const calculateDerivedFields = trade => {
   const leverage = amount !== 0 ? tradeValue / amount : 0
 
   // Commission (only if trade is closed)
-  // Excel: =IF(G2="Limit", 0.0002*M2, 0.0005*M2) + 0.0005*O2*L2 + M2*R2
-  // Note: Assuming Limit orders (0.02% entry) since entryOrder field doesn't exist
-  // Funding rate (R2) is set to 0 since it doesn't exist in the model
+  // Uses dynamic fee percentages from trade data
   let commission = null
   let realisedProfitLoss = null
 
   if (avgExit !== null) {
-    // Entry commission: 0.02% for Limit orders (0.0002)
-    const entryCommission = 0.0002 * tradeValue
+    // Entry commission: use stored fee percentage (converted to decimal)
+    const entryCommission = (entryFeePercentage / 100) * tradeValue
 
-    // Exit commission: 0.05% on (avgExit * positionSize)
-    const exitCommission = 0.0005 * avgExit * positionSize
+    // Exit commission: use stored fee percentage (default 0.05 if not set)
+    const exitFee =
+      exitFeePercentage !== null && exitFeePercentage !== undefined
+        ? exitFeePercentage
+        : 0.05
+    const exitCommission = (exitFee / 100) * avgExit * positionSize
 
     // Funding: tradeValue * fundingRate (set to 0 for now)
     const funding = 0
@@ -421,11 +435,14 @@ export const previewExitTrade = async (req, res) => {
       return res.error({ message: 'Invalid trade ID' })
     }
 
-    const { avgExit } = req.body
+    const { avgExit, exitFeePercentage } = req.body
 
     if (!avgExit || isNaN(Number(avgExit)) || Number(avgExit) <= 0) {
       return res.error({ message: 'Valid exit price is required' })
     }
+
+    const exitFee =
+      exitFeePercentage !== undefined ? Number(exitFeePercentage) : 0.05
 
     // Find existing trade
     const trade = await db.trade.findFirst({
@@ -459,9 +476,9 @@ export const previewExitTrade = async (req, res) => {
       riskPerUnit !== 0 ? (expectedLoss / riskPerUnit) * trade.avgEntry : 0
     const positionSize = trade.avgEntry !== 0 ? tradeValue / trade.avgEntry : 0
 
-    // Calculate commission
-    const entryCommission = 0.0002 * tradeValue
-    const exitCommission = 0.0005 * Number(avgExit) * positionSize
+    // Calculate commission using dynamic fee percentages
+    const entryCommission = (trade.entryFeePercentage / 100) * tradeValue
+    const exitCommission = (exitFee / 100) * Number(avgExit) * positionSize
     const commission = entryCommission + exitCommission
 
     // Calculate P&L based on direction
@@ -555,9 +572,12 @@ export const exitTrade = async (req, res) => {
     const positionSize =
       existingTrade.avgEntry !== 0 ? tradeValue / existingTrade.avgEntry : 0
 
-    // Calculate commission
-    const entryCommission = 0.0002 * tradeValue
-    const exitCommission = 0.0005 * body.avgExit * positionSize
+    // Calculate commission using dynamic fee percentages
+    const exitFeePercentage = body.exitFeePercentage || 0.05
+    const entryCommission =
+      (existingTrade.entryFeePercentage / 100) * tradeValue
+    const exitCommission =
+      (exitFeePercentage / 100) * body.avgExit * positionSize
     const commission = entryCommission + exitCommission
 
     // Calculate P&L based on direction
@@ -607,6 +627,7 @@ export const exitTrade = async (req, res) => {
         avgExit: body.avgExit,
         exitDate,
         exitTime,
+        exitFeePercentage,
         status: 'CLOSED',
         profitLoss,
         profitLossPercentage,
@@ -692,9 +713,12 @@ export const updateExitTrade = async (req, res) => {
     const positionSize =
       existingTrade.avgEntry !== 0 ? tradeValue / existingTrade.avgEntry : 0
 
-    // Calculate commission
-    const entryCommission = 0.0002 * tradeValue
-    const exitCommission = 0.0005 * body.avgExit * positionSize
+    // Calculate commission using dynamic fee percentages
+    const exitFeePercentage = body.exitFeePercentage || 0.05
+    const entryCommission =
+      (existingTrade.entryFeePercentage / 100) * tradeValue
+    const exitCommission =
+      (exitFeePercentage / 100) * body.avgExit * positionSize
     const commission = entryCommission + exitCommission
 
     // Calculate P&L based on direction
@@ -992,6 +1016,95 @@ export const getAnalytics = async (req, res) => {
       }
     })
 
+    // Calculate total fees paid
+    const allTradesForFees = await db.trade.findMany({
+      where: baseWhere,
+      select: {
+        status: true,
+        avgEntry: true,
+        avgExit: true,
+        quantity: true,
+        entryFeePercentage: true,
+        exitFeePercentage: true
+      }
+    })
+
+    let totalFeesPaid = 0
+    allTradesForFees.forEach(trade => {
+      // Entry fees (all trades)
+      const entryFee =
+        (trade.entryFeePercentage / 100) * trade.avgEntry * trade.quantity
+      totalFeesPaid += entryFee
+
+      // Exit fees (only closed trades with exit data)
+      if (
+        trade.status === 'CLOSED' &&
+        trade.avgExit &&
+        trade.exitFeePercentage !== null &&
+        trade.exitFeePercentage !== undefined
+      ) {
+        const exitFee =
+          (trade.exitFeePercentage / 100) * trade.avgExit * trade.quantity
+        totalFeesPaid += exitFee
+      }
+    })
+
+    // Calculate trade duration analysis
+    const closedTradesWithDates = await db.trade.findMany({
+      where: closedWhere,
+      select: {
+        tradeDate: true,
+        tradeTime: true,
+        exitDate: true,
+        exitTime: true
+      }
+    })
+
+    // Define duration buckets
+    const durationBuckets = {
+      '0-30mins': 0,
+      '30mins-24hours': 0,
+      '1-7days': 0,
+      '1-4weeks': 0,
+      '4weeks+': 0
+    }
+
+    closedTradesWithDates.forEach(trade => {
+      if (!trade.exitDate || !trade.exitTime) return
+
+      // Combine date and time for entry and exit
+      const entryDateTime = new Date(trade.tradeDate)
+      const entryTime = new Date(trade.tradeTime)
+      entryDateTime.setHours(entryTime.getUTCHours())
+      entryDateTime.setMinutes(entryTime.getUTCMinutes())
+      entryDateTime.setSeconds(entryTime.getUTCSeconds())
+
+      const exitDateTime = new Date(trade.exitDate)
+      const exitTime = new Date(trade.exitTime)
+      exitDateTime.setHours(exitTime.getUTCHours())
+      exitDateTime.setMinutes(exitTime.getUTCMinutes())
+      exitDateTime.setSeconds(exitTime.getUTCSeconds())
+
+      // Calculate duration in minutes
+      const durationMinutes = (exitDateTime - entryDateTime) / (1000 * 60)
+
+      // Categorize into buckets
+      if (durationMinutes <= 30) {
+        durationBuckets['0-30mins']++
+      } else if (durationMinutes <= 1440) {
+        // 24 hours = 1440 minutes
+        durationBuckets['30mins-24hours']++
+      } else if (durationMinutes <= 10080) {
+        // 7 days = 10080 minutes
+        durationBuckets['1-7days']++
+      } else if (durationMinutes <= 40320) {
+        // 28 days = 40320 minutes
+        durationBuckets['1-4weeks']++
+      } else {
+        durationBuckets['4weeks+']++
+      }
+    })
+
     res.ok({
       totalTrades,
       openTrades,
@@ -1001,8 +1114,10 @@ export const getAnalytics = async (req, res) => {
       averageProfitLoss: aggregates._avg.profitLoss || 0,
       bestTrade: bestTrade?.profitLoss || 0,
       worstTrade: worstTrade?.profitLoss || 0,
+      totalFeesPaid,
       byCoin,
-      byStrategy
+      byStrategy,
+      byDuration: durationBuckets
     })
   } catch (error) {
     console.log(error)

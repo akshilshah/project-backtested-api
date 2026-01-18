@@ -178,6 +178,21 @@ export const createTradeSchema = Joi.object({
       'number.positive': 'Amount must be positive',
       'any.required': 'Amount is required'
     }),
+  entryOrderType: Joi.string()
+    .valid('MARKET', 'LIMIT')
+    .default('LIMIT')
+    .optional()
+    .messages({
+      'any.only': 'Entry order type must be either MARKET or LIMIT'
+    }),
+  entryFeePercentage: Joi.number()
+    .positive()
+    .default(0.02)
+    .optional()
+    .messages({
+      'number.base': 'Entry fee percentage must be a number',
+      'number.positive': 'Entry fee percentage must be positive'
+    }),
   notes: Joi.string()
     .allow('')
     .optional()
@@ -250,6 +265,26 @@ export const updateTradeSchema = Joi.object({
       'number.base': 'Amount must be a number',
       'number.positive': 'Amount must be positive'
     }),
+  entryOrderType: Joi.string()
+    .valid('MARKET', 'LIMIT')
+    .optional()
+    .messages({
+      'any.only': 'Entry order type must be either MARKET or LIMIT'
+    }),
+  entryFeePercentage: Joi.number()
+    .positive()
+    .optional()
+    .messages({
+      'number.base': 'Entry fee percentage must be a number',
+      'number.positive': 'Entry fee percentage must be positive'
+    }),
+  exitFeePercentage: Joi.number()
+    .positive()
+    .optional()
+    .messages({
+      'number.base': 'Exit fee percentage must be a number',
+      'number.positive': 'Exit fee percentage must be positive'
+    }),
   notes: Joi.string()
     .allow('')
     .optional()
@@ -280,6 +315,14 @@ export const exitTradeSchema = Joi.object({
     .messages({
       'string.pattern.base': 'Exit time must be in HH:mm:ss format',
       'any.required': 'Exit time is required'
+    }),
+  exitFeePercentage: Joi.number()
+    .positive()
+    .default(0.05)
+    .optional()
+    .messages({
+      'number.base': 'Exit fee percentage must be a number',
+      'number.positive': 'Exit fee percentage must be positive'
     }),
   notes: Joi.string()
     .allow('')

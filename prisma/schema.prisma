@@ -175,6 +175,11 @@ model Trade {
   quantity           Float
   amount             Float  // Account balance/size used for this trade
 
+  // Order type and fees
+  entryOrderType     String @default("LIMIT") @map("entry_order_type") // "MARKET" or "LIMIT"
+  entryFeePercentage Float  @default(0.02) @map("entry_fee_percentage") // Entry transaction fee % (e.g., 0.02 for limit, 0.05 for market)
+  exitFeePercentage  Float? @map("exit_fee_percentage")  // Exit transaction fee % (set during exit, default 0.05 for market)
+
   // Exit details (nullable until trade is closed)
   avgExit  Float?    @map("avg_exit")
   exitDate DateTime? @map("exit_date") @db.Date
