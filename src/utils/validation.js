@@ -65,13 +65,15 @@ export const updateSettingsSchema = Joi.object({
 export const createCoinSchema = Joi.object({
   name: Joi.string().required().trim().min(1).max(100),
   symbol: Joi.string().required().trim().uppercase().min(1).max(20),
-  description: Joi.string().allow('', null).max(500)
+  description: Joi.string().allow('', null).max(500),
+  image: Joi.string().allow('', null).max(255)
 })
 
 export const updateCoinSchema = Joi.object({
   name: Joi.string().trim().min(1).max(100),
   symbol: Joi.string().trim().uppercase().min(1).max(20),
-  description: Joi.string().allow('', null).max(500)
+  description: Joi.string().allow('', null).max(500),
+  image: Joi.string().allow('', null).max(255)
 }).min(1)
 
 // =============================================================================

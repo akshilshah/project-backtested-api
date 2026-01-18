@@ -11,6 +11,7 @@ import {
   updateProfileSchema,
   updateSettingsSchema
 } from '../../utils/validation'
+import { DEFAULT_COINS } from '../../config/defaultCoins'
 
 /**
  * User Signup
@@ -68,6 +69,21 @@ export const signup = async (req, res) => {
           currency: 'USD',
           timezone: 'UTC'
         }
+      })
+
+      // Create default cryptocurrency coins
+      const coinsData = DEFAULT_COINS.map(coin => ({
+        name: coin.name,
+        symbol: coin.symbol,
+        description: coin.description,
+        image: coin.image,
+        organizationId: organization.id,
+        createdById: user.id,
+        updatedById: user.id
+      }))
+
+      await tx.coin.createMany({
+        data: coinsData
       })
 
       return user

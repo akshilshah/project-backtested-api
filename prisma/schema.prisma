@@ -96,6 +96,7 @@ model Coin {
   name        String
   symbol      String
   description String?
+  image       String? // Path to the coin logo/image file
 
   // Organization relation
   organizationId Int          @map("organization_id")
