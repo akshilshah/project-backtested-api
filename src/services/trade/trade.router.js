@@ -8,12 +8,14 @@ import {
   updateExitTrade,
   previewExitTrade,
   deleteTrade,
-  getAnalytics
+  getAnalytics,
+  getDailyPnl
 } from './trade.controller'
 
 const router = Router()
 
-// Analytics endpoint (must be before :id routes to avoid conflict)
+// Analytics endpoints (must be before :id routes to avoid conflict)
+router.get('/analytics/daily-pnl', getDailyPnl)
 router.get('/analytics', getAnalytics)
 
 // CRUD operations

@@ -852,27 +852,21 @@ export const getAnalytics = async (req, res) => {
       db.trade.aggregate({
         where: closedWhere,
         _sum: { profitLoss: true },
-        _avg: { profitLoss: true, profitLossPercentage: true }
+        _avg: { profitLoss: true }
       }),
 
       // Best trade (highest P&L)
       db.trade.findFirst({
         where: closedWhere,
         orderBy: { profitLoss: 'desc' },
-        include: {
-          coin: { select: { id: true, name: true, symbol: true } },
-          strategy: { select: { id: true, name: true } }
-        }
+        select: { profitLoss: true }
       }),
 
       // Worst trade (lowest P&L)
       db.trade.findFirst({
         where: closedWhere,
         orderBy: { profitLoss: 'asc' },
-        include: {
-          coin: { select: { id: true, name: true, symbol: true } },
-          strategy: { select: { id: true, name: true } }
-        }
+        select: { profitLoss: true }
       }),
 
       // P&L by coin
@@ -880,8 +874,7 @@ export const getAnalytics = async (req, res) => {
         by: ['coinId'],
         where: closedWhere,
         _sum: { profitLoss: true },
-        _count: { id: true },
-        _avg: { profitLossPercentage: true }
+        _count: { id: true }
       }),
 
       // P&L by strategy
@@ -889,12 +882,11 @@ export const getAnalytics = async (req, res) => {
         by: ['strategyId'],
         where: closedWhere,
         _sum: { profitLoss: true },
-        _count: { id: true },
-        _avg: { profitLossPercentage: true }
+        _count: { id: true }
       })
     ])
 
-    // Calculate win rate (profitable trades / total closed trades)
+    // Calculate overall win rate
     const profitableTrades = await db.trade.count({
       where: {
         ...closedWhere,
@@ -903,7 +895,9 @@ export const getAnalytics = async (req, res) => {
     })
 
     const winRate =
-      closedTrades > 0 ? (profitableTrades / closedTrades) * 100 : 0
+      closedTrades > 0
+        ? parseFloat(((profitableTrades / closedTrades) * 100).toFixed(2))
+        : 0
 
     // Fetch coin and strategy names for the grouped data
     const coinIds = tradesByCoin.map(t => t.coinId)
@@ -920,41 +914,158 @@ export const getAnalytics = async (req, res) => {
       })
     ])
 
+    // Calculate win rate per coin
+    const winRateByCoin = await Promise.all(
+      coinIds.map(async coinId => {
+        const profitableCount = await db.trade.count({
+          where: {
+            ...closedWhere,
+            coinId,
+            profitLoss: { gt: 0 }
+          }
+        })
+        const totalCount =
+          tradesByCoin.find(t => t.coinId === coinId)?._count.id || 0
+        return {
+          coinId,
+          winRate:
+            totalCount > 0
+              ? parseFloat(((profitableCount / totalCount) * 100).toFixed(2))
+              : 0
+        }
+      })
+    )
+
+    // Calculate win rate per strategy
+    const winRateByStrategy = await Promise.all(
+      strategyIds.map(async strategyId => {
+        const profitableCount = await db.trade.count({
+          where: {
+            ...closedWhere,
+            strategyId,
+            profitLoss: { gt: 0 }
+          }
+        })
+        const totalCount =
+          tradesByStrategy.find(t => t.strategyId === strategyId)?._count.id ||
+          0
+        return {
+          strategyId,
+          winRate:
+            totalCount > 0
+              ? parseFloat(((profitableCount / totalCount) * 100).toFixed(2))
+              : 0
+        }
+      })
+    )
+
     // Map coin and strategy data
     const coinMap = new Map(coins.map(c => [c.id, c]))
     const strategyMap = new Map(strategies.map(s => [s.id, s]))
+    const winRateByCoinMap = new Map(
+      winRateByCoin.map(w => [w.coinId, w.winRate])
+    )
+    const winRateByStrategyMap = new Map(
+      winRateByStrategy.map(w => [w.strategyId, w.winRate])
+    )
 
-    const byCoin = tradesByCoin.map(item => ({
-      coin: coinMap.get(item.coinId),
-      totalTrades: item._count.id,
-      totalProfitLoss: item._sum.profitLoss || 0,
-      avgProfitLossPercentage: item._avg.profitLossPercentage || 0
-    }))
+    const byCoin = tradesByCoin.map(item => {
+      const coin = coinMap.get(item.coinId)
+      return {
+        coinId: item.coinId,
+        coinSymbol: coin?.symbol || '',
+        coinName: coin?.name || '',
+        trades: item._count.id,
+        winRate: winRateByCoinMap.get(item.coinId) || 0,
+        profitLoss: item._sum.profitLoss || 0
+      }
+    })
 
-    const byStrategy = tradesByStrategy.map(item => ({
-      strategy: strategyMap.get(item.strategyId),
-      totalTrades: item._count.id,
-      totalProfitLoss: item._sum.profitLoss || 0,
-      avgProfitLossPercentage: item._avg.profitLossPercentage || 0
-    }))
+    const byStrategy = tradesByStrategy.map(item => {
+      const strategy = strategyMap.get(item.strategyId)
+      return {
+        strategyId: item.strategyId,
+        strategyName: strategy?.name || '',
+        trades: item._count.id,
+        winRate: winRateByStrategyMap.get(item.strategyId) || 0,
+        profitLoss: item._sum.profitLoss || 0
+      }
+    })
 
     res.ok({
-      summary: {
-        totalTrades,
-        openTrades,
-        closedTrades,
-        profitableTrades,
-        losingTrades: closedTrades - profitableTrades,
-        winRate: parseFloat(winRate.toFixed(2)),
-        totalProfitLoss: aggregates._sum.profitLoss || 0,
-        avgProfitLoss: aggregates._avg.profitLoss || 0,
-        avgProfitLossPercentage: aggregates._avg.profitLossPercentage || 0
-      },
-      bestTrade,
-      worstTrade,
+      totalTrades,
+      openTrades,
+      closedTrades,
+      winRate,
+      totalProfitLoss: aggregates._sum.profitLoss || 0,
+      averageProfitLoss: aggregates._avg.profitLoss || 0,
+      bestTrade: bestTrade?.profitLoss || 0,
+      worstTrade: worstTrade?.profitLoss || 0,
       byCoin,
       byStrategy
     })
+  } catch (error) {
+    console.log(error)
+    res.error(error)
+  }
+}
+
+/**
+ * Get daily P&L for calendar view
+ * GET /api/trades/analytics/daily-pnl
+ */
+export const getDailyPnl = async (req, res) => {
+  try {
+    const context = req.context
+    const { year, month } = req.query
+
+    // Validate year and month
+    const yearNum = parseInt(year, 10)
+    const monthNum = parseInt(month, 10)
+
+    if (!yearNum || !monthNum || monthNum < 1 || monthNum > 12) {
+      return res.error({ message: 'Invalid year or month' })
+    }
+
+    // Calculate start and end dates for the month
+    const startDate = new Date(yearNum, monthNum - 1, 1)
+    const endDate = new Date(yearNum, monthNum, 0, 23, 59, 59, 999)
+
+    // Get all closed trades for the month, grouped by date
+    const trades = await db.trade.findMany({
+      where: {
+        organizationId: context.organization.id,
+        status: 'CLOSED',
+        tradeDate: {
+          gte: startDate,
+          lte: endDate
+        }
+      },
+      select: {
+        tradeDate: true,
+        profitLoss: true
+      },
+      orderBy: {
+        tradeDate: 'asc'
+      }
+    })
+
+    // Group trades by day and calculate daily P&L
+    const dailyPnlMap = new Map()
+
+    trades.forEach(trade => {
+      const day = trade.tradeDate.getDate()
+      const currentPnl = dailyPnlMap.get(day) || 0
+      dailyPnlMap.set(day, currentPnl + (trade.profitLoss || 0))
+    })
+
+    // Convert map to array of objects
+    const dailyPnl = Array.from(dailyPnlMap.entries()).map(([day, pnl]) => ({
+      day,
+      pnl: parseFloat(pnl.toFixed(2))
+    }))
+
+    res.ok({ dailyPnl, year: yearNum, month: monthNum })
   } catch (error) {
     console.log(error)
     res.error(error)
