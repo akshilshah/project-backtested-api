@@ -1,3 +1,4 @@
+import { S3Client } from '@aws-sdk/client-s3'
 import { SESClient } from '@aws-sdk/client-ses'
 import { SQSClient } from '@aws-sdk/client-sqs'
 import { fromInstanceMetadata } from '@aws-sdk/credential-provider-imds'
@@ -33,5 +34,11 @@ const sesClientConfig = {
   credentials: defaultProvider({ providerChain: myDefaultProviders })
 }
 
+const s3ClientConfig = {
+  region: 'ap-south-1',
+  credentials: defaultProvider({ providerChain: myDefaultProviders })
+}
+
 export const SQSCLIENT = new SQSClient(sqsClientConfig)
 export const SESCLIENT = new SESClient(sesClientConfig)
+export const S3_CLIENT = new S3Client(s3ClientConfig)

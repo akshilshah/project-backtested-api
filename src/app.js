@@ -22,6 +22,8 @@ import {
   ok,
   unauthorized
 } from './utils/express-helper'
+import { documentMulterConfig } from './utils/multer-config'
+import { uploadDocuments } from './utils/s3-multer'
 require('dotenv').config()
 
 // create express server
@@ -75,6 +77,7 @@ router.all('*', function(req, res, next) {
 // API Routes
 app.use('/api/auth', authRouter)
 app.use('', protect)
+app.post('/api/upload', documentMulterConfig.single('file'), uploadDocuments)
 app.use('/api/masters/coins', coinsRouter)
 app.use('/api/masters/strategies', strategiesRouter)
 app.use('/api/trades', tradeRouter)
