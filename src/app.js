@@ -7,6 +7,12 @@ import helmet from 'helmet'
 import morgan from 'morgan'
 import path from 'path'
 import { fileURLToPath } from 'url'
+import { protect } from './services/auth/auth.controller'
+import authRouter from './services/auth/auth.router'
+import backtestRouter from './services/backtest/backtest.router'
+import coinsRouter from './services/masters/coins/coins.router'
+import strategiesRouter from './services/masters/strategies/strategies.router'
+import tradeRouter from './services/trade/trade.router'
 import {
   conflict,
   created,
@@ -16,12 +22,6 @@ import {
   ok,
   unauthorized
 } from './utils/express-helper'
-import authRouter from './services/auth/auth.router'
-import coinsRouter from './services/masters/coins/coins.router'
-import strategiesRouter from './services/masters/strategies/strategies.router'
-import tradeRouter from './services/trade/trade.router'
-import backtestRouter from './services/backtest/backtest.router'
-import { protect } from './services/auth/auth.controller'
 require('dotenv').config()
 
 // create express server
@@ -74,10 +74,11 @@ router.all('*', function(req, res, next) {
 
 // API Routes
 app.use('/api/auth', authRouter)
-app.use('/api/masters/coins', protect, coinsRouter)
-app.use('/api/masters/strategies', protect, strategiesRouter)
-app.use('/api/trades', protect, tradeRouter)
-app.use('/api/backtest', protect, backtestRouter)
+app.use('', protect)
+app.use('/api/masters/coins', coinsRouter)
+app.use('/api/masters/strategies', strategiesRouter)
+app.use('/api/trades', tradeRouter)
+app.use('/api/backtest', backtestRouter)
 
 // Source:  https://docs.sentry.io/platforms/node/guides/express/
 app.use(Sentry.Handlers.errorHandler())

@@ -124,6 +124,9 @@ model Strategy {
   id          Int     @id @default(autoincrement())
   name        String
   description String?
+  entryRule   String? @map("entry_rule")
+  exitRule    String? @map("exit_rule")
+  stopLossRule String? @map("stop_loss_rule")
   notes       String?
   rules       Json?
 
