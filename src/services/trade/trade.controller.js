@@ -576,12 +576,29 @@ export const exitTrade = async (req, res) => {
     // Calculate P&L percentage (based on the account amount risked)
     const profitLossPercentage = (profitLoss / existingTrade.amount) * 100
 
-    // Calculate duration in days
-    const tradeDateMs = existingTrade.tradeDate.getTime()
-    const exitDateMs = exitDate.getTime()
-    const duration = Math.ceil(
-      (exitDateMs - tradeDateMs) / (1000 * 60 * 60 * 24)
+    // Calculate duration in hours (including time component)
+    // Combine date and time for accurate calculation
+    const entryDateTime = new Date(
+      existingTrade.tradeDate.getFullYear(),
+      existingTrade.tradeDate.getMonth(),
+      existingTrade.tradeDate.getDate(),
+      existingTrade.tradeTime.getUTCHours(),
+      existingTrade.tradeTime.getUTCMinutes(),
+      existingTrade.tradeTime.getUTCSeconds()
     )
+
+    const exitDateTime = new Date(
+      exitDate.getFullYear(),
+      exitDate.getMonth(),
+      exitDate.getDate(),
+      exitTime.getUTCHours(),
+      exitTime.getUTCMinutes(),
+      exitTime.getUTCSeconds()
+    )
+
+    // Duration in hours (rounded to 1 decimal place)
+    const durationMs = exitDateTime.getTime() - entryDateTime.getTime()
+    const duration = Math.round((durationMs / (1000 * 60 * 60)) * 10) / 10
 
     // Update trade with exit details
     const trade = await db.trade.update({
@@ -696,12 +713,29 @@ export const updateExitTrade = async (req, res) => {
     // Calculate P&L percentage (based on the account amount risked)
     const profitLossPercentage = (profitLoss / existingTrade.amount) * 100
 
-    // Calculate duration in days
-    const tradeDateMs = existingTrade.tradeDate.getTime()
-    const exitDateMs = exitDate.getTime()
-    const duration = Math.ceil(
-      (exitDateMs - tradeDateMs) / (1000 * 60 * 60 * 24)
+    // Calculate duration in hours (including time component)
+    // Combine date and time for accurate calculation
+    const entryDateTime = new Date(
+      existingTrade.tradeDate.getFullYear(),
+      existingTrade.tradeDate.getMonth(),
+      existingTrade.tradeDate.getDate(),
+      existingTrade.tradeTime.getUTCHours(),
+      existingTrade.tradeTime.getUTCMinutes(),
+      existingTrade.tradeTime.getUTCSeconds()
     )
+
+    const exitDateTime = new Date(
+      exitDate.getFullYear(),
+      exitDate.getMonth(),
+      exitDate.getDate(),
+      exitTime.getUTCHours(),
+      exitTime.getUTCMinutes(),
+      exitTime.getUTCSeconds()
+    )
+
+    // Duration in hours (rounded to 1 decimal place)
+    const durationMs = exitDateTime.getTime() - entryDateTime.getTime()
+    const duration = Math.round((durationMs / (1000 * 60 * 60)) * 10) / 10
 
     // Update trade with new exit details
     const trade = await db.trade.update({
