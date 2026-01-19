@@ -9,6 +9,7 @@ export const documentMulterConfig = multer({
     s3: S3_CLIENT,
     contentType: AUTO_CONTENT_TYPE,
     bucket: process.env.BUCKET_NAME,
+    acl: 'public-read',
     metadata: function(req, file, cb) {
       cb(null, {
         fieldName: file.fieldname,
