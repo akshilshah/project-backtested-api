@@ -146,4 +146,4 @@ const DEFAULT_COINS = [
   }
 ]
 
-module.exports = { DEFAULT_COINS }
+export { DEFAULT_COINS }

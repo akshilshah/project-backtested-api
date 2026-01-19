@@ -52,6 +52,7 @@ export const listCoins = async (req, res) => {
         id: true,
         name: true,
         symbol: true,
+        image: true,
         description: true,
         createdAt: true,
         updatedAt: true
@@ -79,6 +80,7 @@ export const getCoin = async (req, res) => {
         id: true,
         name: true,
         symbol: true,
+        image: true,
         description: true,
         createdAt: true,
         updatedAt: true,

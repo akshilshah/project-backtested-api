@@ -141,7 +141,7 @@ export const listTrades = async (req, res) => {
         where,
         include: {
           coin: {
-            select: { id: true, name: true, symbol: true }
+            select: { id: true, name: true, symbol: true, image: true }
           },
           strategy: {
             select: { id: true, name: true }
