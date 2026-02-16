@@ -43,7 +43,10 @@ export const loginSchema = Joi.object({
     .required()
     .messages({
       'any.required': 'Password is required'
-    })
+    }),
+  rememberMe: Joi.boolean()
+    .optional()
+    .default(false)
 })
 
 export const updateProfileSchema = Joi.object({

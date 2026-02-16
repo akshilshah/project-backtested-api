@@ -136,11 +136,11 @@ export const login = async (req, res) => {
       return res.unauthorized('Invalid email or password')
     }
 
-    // Generate JWT token
-    const token = await generateJWTToken({
-      id: user.id,
-      organizationId: user.organizationId
-    })
+    // Generate JWT token (4 days if rememberMe, default otherwise)
+    const token = await generateJWTToken(
+      { id: user.id, organizationId: user.organizationId },
+      body.rememberMe ? '4d' : undefined
+    )
 
     res.ok({
       message: 'Login successful',

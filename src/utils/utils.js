@@ -24,11 +24,11 @@ export const compareHash = async (text, hash) => {
   }
 }
 
-export const generateJWTToken = async obj => {
+export const generateJWTToken = async (obj, expiresIn) => {
   return (
     'Bearer ' +
     jwt.sign(obj, config.SECRETS.JWT, {
-      expiresIn: config.SECRETS.JWTEXP
+      expiresIn: expiresIn || config.SECRETS.JWTEXP
     })
   )
 }
