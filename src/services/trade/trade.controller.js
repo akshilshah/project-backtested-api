@@ -339,16 +339,17 @@ export const updateTrade = async (req, res) => {
       return res.error({ message: TRADE_MESSAGES.TRADE_NOT_FOUND })
     }
 
-    // Cannot update closed trades (except notes)
+    // Cannot update closed trades (except notes and realisedPnl)
     if (existingTrade.status === 'CLOSED') {
-      // Check if only notes are being updated
+      const allowedClosedFields = ['notes', 'realisedPnl']
       const updateKeys = Object.keys(body).filter(
         key => body[key] !== undefined
       )
-      const isOnlyNotesUpdate =
-        updateKeys.length === 1 && updateKeys[0] === 'notes'
+      const isAllowedUpdate = updateKeys.every(key =>
+        allowedClosedFields.includes(key)
+      )
 
-      if (!isOnlyNotesUpdate) {
+      if (!isAllowedUpdate) {
         return res.error({ message: TRADE_MESSAGES.TRADE_CANNOT_UPDATE_CLOSED })
       }
     }
@@ -396,6 +397,7 @@ export const updateTrade = async (req, res) => {
     if (body.quantity !== undefined) updateData.quantity = body.quantity
     if (body.amount !== undefined) updateData.amount = body.amount
     if (body.notes !== undefined) updateData.notes = body.notes || null
+    if (body.realisedPnl !== undefined) updateData.realisedPnl = body.realisedPnl
 
     if (body.tradeDate) {
       updateData.tradeDate = new Date(body.tradeDate)

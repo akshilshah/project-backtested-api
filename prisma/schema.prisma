@@ -192,6 +192,7 @@ model Trade {
   // Calculated fields (populated when trade is closed)
   profitLoss           Float? @map("profit_loss")
   profitLossPercentage Float? @map("profit_loss_percentage")
+  realisedPnl          Float? @map("realised_pnl") // Actual P&L from platform (entered manually)
   duration             Int?   // Duration in days
 
   // Notes/Comments

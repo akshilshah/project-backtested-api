@@ -290,6 +290,12 @@ export const updateTradeSchema = Joi.object({
       'number.base': 'Exit fee percentage must be a number',
       'number.positive': 'Exit fee percentage must be positive'
     }),
+  realisedPnl: Joi.number()
+    .optional()
+    .allow(null)
+    .messages({
+      'number.base': 'Realised P&L must be a number'
+    }),
   notes: Joi.string()
     .allow('')
     .optional()
@@ -332,7 +338,7 @@ export const exitTradeSchema = Joi.object({
   notes: Joi.string()
     .allow('')
     .optional()
-})
+}).options({ stripUnknown: true })
 
 export const listTradesSchema = Joi.object({
   status: Joi.string()
