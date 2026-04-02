@@ -335,6 +335,11 @@ export const exitTradeSchema = Joi.object({
       'number.base': 'Exit fee percentage must be a number',
       'number.positive': 'Exit fee percentage must be positive'
     }),
+  realisedPnl: Joi.number()
+    .optional()
+    .messages({
+      'number.base': 'Realised P&L must be a number'
+    }),
   notes: Joi.string()
     .allow('')
     .optional()

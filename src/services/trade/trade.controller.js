@@ -634,6 +634,7 @@ export const exitTrade = async (req, res) => {
         profitLoss,
         profitLossPercentage,
         duration,
+        ...(body.realisedPnl !== undefined && { realisedPnl: body.realisedPnl }),
         notes:
           body.notes !== undefined ? body.notes || null : existingTrade.notes,
         updatedBy: { connect: { id: context.user.id } }
