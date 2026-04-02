@@ -493,11 +493,11 @@ export const previewExitTrade = async (req, res) => {
       grossProfitLoss = (Number(avgExit) - trade.avgEntry) * positionSize
     }
 
-    // Net P&L after commission
-    const profitLoss = grossProfitLoss - commission
+    // Net P&L after commission (rounded to 4 decimal places)
+    const profitLoss = Math.round((grossProfitLoss - commission) * 10000) / 10000
 
     // Calculate P&L percentage (based on the account amount risked)
-    const profitLossPercentage = (profitLoss / trade.amount) * 100
+    const profitLossPercentage = Math.round((profitLoss / trade.amount) * 100 * 10000) / 10000
 
     res.ok({
       profitLoss,
@@ -592,11 +592,11 @@ export const exitTrade = async (req, res) => {
       grossProfitLoss = (body.avgExit - existingTrade.avgEntry) * positionSize
     }
 
-    // Net P&L after commission
-    const profitLoss = grossProfitLoss - commission
+    // Net P&L after commission (rounded to 4 decimal places)
+    const profitLoss = Math.round((grossProfitLoss - commission) * 10000) / 10000
 
     // Calculate P&L percentage (based on the account amount risked)
-    const profitLossPercentage = (profitLoss / existingTrade.amount) * 100
+    const profitLossPercentage = Math.round((profitLoss / existingTrade.amount) * 100 * 10000) / 10000
 
     // Calculate duration in hours (including time component)
     // Combine date and time for accurate calculation
@@ -734,11 +734,11 @@ export const updateExitTrade = async (req, res) => {
       grossProfitLoss = (body.avgExit - existingTrade.avgEntry) * positionSize
     }
 
-    // Net P&L after commission
-    const profitLoss = grossProfitLoss - commission
+    // Net P&L after commission (rounded to 4 decimal places)
+    const profitLoss = Math.round((grossProfitLoss - commission) * 10000) / 10000
 
     // Calculate P&L percentage (based on the account amount risked)
-    const profitLossPercentage = (profitLoss / existingTrade.amount) * 100
+    const profitLossPercentage = Math.round((profitLoss / existingTrade.amount) * 100 * 10000) / 10000
 
     // Calculate duration in hours (including time component)
     // Combine date and time for accurate calculation
@@ -879,21 +879,21 @@ export const getAnalytics = async (req, res) => {
       db.trade.aggregate({
         where: closedWhere,
         _sum: { profitLoss: true, realisedPnl: true },
-        _avg: { profitLoss: true }
+        _avg: { profitLoss: true, realisedPnl: true }
       }),
 
-      // Best trade (highest P&L)
+      // Best trade (highest P&L by realisedPnl)
       db.trade.findFirst({
-        where: closedWhere,
-        orderBy: { profitLoss: 'desc' },
-        select: { profitLoss: true }
+        where: { ...closedWhere, realisedPnl: { not: null } },
+        orderBy: { realisedPnl: 'desc' },
+        select: { realisedPnl: true }
       }),
 
-      // Worst trade (lowest P&L)
+      // Worst trade (lowest P&L by realisedPnl)
       db.trade.findFirst({
-        where: closedWhere,
-        orderBy: { profitLoss: 'asc' },
-        select: { profitLoss: true }
+        where: { ...closedWhere, realisedPnl: { not: null } },
+        orderBy: { realisedPnl: 'asc' },
+        select: { realisedPnl: true }
       }),
 
       // P&L by coin
@@ -1028,7 +1028,9 @@ export const getAnalytics = async (req, res) => {
         avgExit: true,
         quantity: true,
         entryFeePercentage: true,
-        exitFeePercentage: true
+        exitFeePercentage: true,
+        profitLoss: true,
+        realisedPnl: true
       }
     })
 
@@ -1049,6 +1051,15 @@ export const getAnalytics = async (req, res) => {
         const exitFee =
           (trade.exitFeePercentage / 100) * trade.avgExit * trade.quantity
         totalFeesPaid += exitFee
+      }
+
+      // Funding fee: difference between estimated P&L and realised P&L
+      if (
+        trade.status === 'CLOSED' &&
+        trade.profitLoss != null &&
+        trade.realisedPnl != null
+      ) {
+        totalFeesPaid += trade.profitLoss - trade.realisedPnl
       }
     })
 
@@ -1115,9 +1126,9 @@ export const getAnalytics = async (req, res) => {
       winRate,
       totalProfitLoss: aggregates._sum.profitLoss || 0,
       totalRealisedPnl: aggregates._sum.realisedPnl || 0,
-      averageProfitLoss: aggregates._avg.profitLoss || 0,
-      bestTrade: bestTrade?.profitLoss || 0,
-      worstTrade: worstTrade?.profitLoss || 0,
+      averageProfitLoss: aggregates._avg.realisedPnl || 0,
+      bestTrade: bestTrade?.realisedPnl || 0,
+      worstTrade: worstTrade?.realisedPnl || 0,
       totalFeesPaid,
       byCoin,
       byStrategy,
