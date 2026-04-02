@@ -878,7 +878,7 @@ export const getAnalytics = async (req, res) => {
       // Aggregate P&L data for closed trades
       db.trade.aggregate({
         where: closedWhere,
-        _sum: { profitLoss: true },
+        _sum: { profitLoss: true, realisedPnl: true },
         _avg: { profitLoss: true }
       }),
 
@@ -1114,6 +1114,7 @@ export const getAnalytics = async (req, res) => {
       closedTrades,
       winRate,
       totalProfitLoss: aggregates._sum.profitLoss || 0,
+      totalRealisedPnl: aggregates._sum.realisedPnl || 0,
       averageProfitLoss: aggregates._avg.profitLoss || 0,
       bestTrade: bestTrade?.profitLoss || 0,
       worstTrade: worstTrade?.profitLoss || 0,
