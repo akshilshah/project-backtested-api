@@ -776,6 +776,8 @@ export const updateExitTrade = async (req, res) => {
         duration,
         notes:
           body.notes !== undefined ? body.notes || null : existingTrade.notes,
+        realisedPnl:
+          body.realisedPnl !== undefined ? body.realisedPnl : existingTrade.realisedPnl,
         updatedBy: { connect: { id: context.user.id } }
       },
       include: {
