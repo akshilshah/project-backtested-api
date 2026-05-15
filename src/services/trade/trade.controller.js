@@ -339,9 +339,15 @@ export const updateTrade = async (req, res) => {
       return res.error({ message: TRADE_MESSAGES.TRADE_NOT_FOUND })
     }
 
-    // Cannot update closed trades (except notes and realisedPnl)
+    // Cannot update closed trades (except notes, realisedPnl, strategy, and stop loss)
     if (existingTrade.status === 'CLOSED') {
-      const allowedClosedFields = ['notes', 'realisedPnl']
+      const allowedClosedFields = [
+        'notes',
+        'realisedPnl',
+        'strategyId',
+        'stopLoss',
+        'stopLossPercentage'
+      ]
       const updateKeys = Object.keys(body).filter(
         key => body[key] !== undefined
       )
@@ -902,7 +908,7 @@ export const getAnalytics = async (req, res) => {
       db.trade.groupBy({
         by: ['coinId'],
         where: closedWhere,
-        _sum: { profitLoss: true },
+        _sum: { realisedPnl: true },
         _count: { id: true }
       }),
 
@@ -910,7 +916,7 @@ export const getAnalytics = async (req, res) => {
       db.trade.groupBy({
         by: ['strategyId'],
         where: closedWhere,
-        _sum: { profitLoss: true },
+        _sum: { realisedPnl: true },
         _count: { id: true }
       })
     ])
@@ -1006,7 +1012,7 @@ export const getAnalytics = async (req, res) => {
         coinName: coin?.name || '',
         trades: item._count.id,
         winRate: winRateByCoinMap.get(item.coinId) || 0,
-        profitLoss: item._sum.profitLoss || 0
+        profitLoss: item._sum.realisedPnl || 0
       }
     })
 
@@ -1017,7 +1023,7 @@ export const getAnalytics = async (req, res) => {
         strategyName: strategy?.name || '',
         trades: item._count.id,
         winRate: winRateByStrategyMap.get(item.strategyId) || 0,
-        profitLoss: item._sum.profitLoss || 0
+        profitLoss: item._sum.realisedPnl || 0
       }
     })
 
