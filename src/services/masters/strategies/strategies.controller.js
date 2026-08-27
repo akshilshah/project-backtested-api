@@ -180,6 +180,12 @@ export const deleteStrategy = async (req, res) => {
     const context = req.context
     const { id } = await idParamSchema.validateAsync(req.params)
 
+    // Confirmation flag: ?confirm=true (query) or { confirm: true } (body)
+    const confirm =
+      req.query.confirm === 'true' ||
+      req.query.confirm === true ||
+      req.body?.confirm === true
+
     // Check if strategy exists
     const existingStrategy = await db.strategy.findFirst({
       where: {
@@ -192,23 +198,39 @@ export const deleteStrategy = async (req, res) => {
       return res.notFound(constants.STRATEGY_NOT_FOUND)
     }
 
-    // Check if strategy is used in any trades
-    const tradesCount = await db.trade.count({
-      where: {
-        strategyId: id,
-        organizationId: context.organization.id
-      }
-    })
+    // Count dependent records (trades + backtest trades)
+    const [tradesCount, backtestTradesCount] = await Promise.all([
+      db.trade.count({
+        where: { strategyId: id, organizationId: context.organization.id }
+      }),
+      db.backtestTrade.count({
+        where: { strategyId: id, organizationId: context.organization.id }
+      })
+    ])
 
-    if (tradesCount > 0) {
+    const hasData = tradesCount > 0 || backtestTradesCount > 0
+
+    // If the strategy has dependent data, require explicit confirmation.
+    // Deleting it will permanently remove those trades too.
+    if (hasData && !confirm) {
       return res.error({
-        message: `Cannot delete strategy. It is used in ${tradesCount} trade(s).`
+        requiresConfirmation: true,
+        tradesCount,
+        backtestTradesCount,
+        message: `This strategy has ${tradesCount} trade(s) and ${backtestTradesCount} backtest trade(s). Deleting it will permanently delete them. Retry with confirm=true to proceed.`
       })
     }
 
-    await db.strategy.delete({
-      where: { id }
-    })
+    // Delete the strategy and its dependent records atomically
+    await db.$transaction([
+      db.backtestTrade.deleteMany({
+        where: { strategyId: id, organizationId: context.organization.id }
+      }),
+      db.trade.deleteMany({
+        where: { strategyId: id, organizationId: context.organization.id }
+      }),
+      db.strategy.delete({ where: { id } })
+    ])
 
     res.ok({ message: constants.STRATEGY_DELETED })
   } catch (error) {
